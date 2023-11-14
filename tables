@@ -2,7 +2,7 @@ Set Serveroutput on;
 
 drop table Product_Category;
 drop table Products;
-DROP TABLE CREDIT_CARDS;
+DROP TABLE Credit_Cards;
 DROP TABLE Customers;
 
 CREATE TABLE Customers (
