@@ -42,7 +42,28 @@ Create table Products(
     foreign key (pcid) references Product_Category(pcid)
 );
 
+-- Create Orders Table
+CREATE TABLE Orders (
+    order_id NUMBER PRIMARY KEY,
+    customer_id NUMBER REFERENCES Customers(CustomerID),
+    productid_ NUMBER REFERENCES Products(ProductID),
+    quantity NUMBER,
+    order_date DATE
+);
+
+-- Create Invoices Table
+CREATE TABLE Invoices (
+    invoice_id NUMBER PRIMARY KEY,
+    order_id NUMBER REFERENCES Orders(order_id),
+    customer_id NUMBER REFERENCES Customers(customer_id),
+    credit_card_number VARCHAR2(20),
+    amount NUMBER
+);
+
 DESC Customers;
 DESC Credit_Cards;
 desc Product_Category;
 desc Products;
+
+desc Orders;
+desc Invoices;
