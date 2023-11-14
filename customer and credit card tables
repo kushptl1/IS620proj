@@ -1,0 +1,24 @@
+DROP TABLE CREDIT_CARDS;
+DROP TABLE Customers;
+
+CREATE TABLE Customers (
+  customer_id INT PRIMARY KEY,
+  fname VARCHAR(50),
+  lname VARCHAR(50),
+  email VARCHAR(100),
+  city VARCHAR(50),
+  state VARCHAR(50),
+  zip INT
+);
+
+CREATE TABLE Credit_Cards (
+  card_number INT PRIMARY KEY, 
+  customer_id INT,
+  card_type VARCHAR(10),
+  expiration_year INT,
+  expiration_month INT,
+  FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+DESC Customers;
+DESC Credit_Cards;
