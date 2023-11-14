@@ -33,7 +33,7 @@ Create table Product_Category(
 );
 
 Create table Products(
-    productid number,
+    product_id number,
     pcid number,
     pname varchar(30),
     avail_quant number,
