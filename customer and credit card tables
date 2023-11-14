@@ -1,3 +1,7 @@
+Set Serveroutput on;
+
+drop table Product_Category;
+drop table Products;
 DROP TABLE CREDIT_CARDS;
 DROP TABLE Customers;
 
@@ -20,5 +24,25 @@ CREATE TABLE Credit_Cards (
   FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
 );
 
+
+Create table Product_Category(
+    pcid number,
+    pcName varchar(30),
+    pcDesc varchar(100),
+    primary key (pcid)
+);
+
+Create table Products(
+    productid number,
+    pcid number,
+    pname varchar(30),
+    avail_quant number,
+    unitprice number,
+    primary key (pid),
+    foreign key (pcid) references Product_Category(pcid)
+);
+
 DESC Customers;
 DESC Credit_Cards;
+desc Product_Category;
+desc Products;
