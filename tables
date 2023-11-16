@@ -1,9 +1,10 @@
 Set Serveroutput on;
 
-drop table Product_Category;
-drop table Products;
+DROP TABLE Product_Category;
+DROP TABLE Products;
 DROP TABLE Credit_Cards;
 DROP TABLE Customers;
+Drop TABLE Orders;
 
 CREATE TABLE Customers (
   customer_id INT PRIMARY KEY,
@@ -42,7 +43,19 @@ Create table Products(
     foreign key (pcid) references Product_Category(pcid)
 );
 
-DESC Customers;
-DESC Credit_Cards;
+CREATE TABLE Orders (
+    Order_ID number ,
+    Customer_ID number,
+    Product_ID number,
+    Quantity number,
+    Order_Date date,
+    primary key (Orser_ID);
+    foreign key (Customer_ID) references Customers(Customer_ID),
+    foreign key (Product_ID) references Products(Product_ID)
+);
+
+desc Customers;
+desc Credit_Cards;
 desc Product_Category;
 desc Products;
+desc Orders;
