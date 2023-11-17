@@ -49,7 +49,7 @@ CREATE TABLE Orders (
     Product_ID number,
     Quantity number,
     Order_Date date,
-    primary key (Orser_ID);
+    primary key (Order_ID);
     foreign key (Customer_ID) references Customers(Customer_ID),
     foreign key (Product_ID) references Products(Product_ID)
 );
