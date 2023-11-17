@@ -8,8 +8,8 @@ Drop TABLE Orders;
 
 CREATE TABLE Customers (
   customer_id INT PRIMARY KEY,
-  fname VARCHAR(50),
-  lname VARCHAR(50),
+  F_Name VARCHAR(50),
+  L_Name VARCHAR(50),
   email VARCHAR(100),
   city VARCHAR(50),
   state VARCHAR(50),
