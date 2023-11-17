@@ -7,7 +7,7 @@ DROP TABLE Customers;
 Drop TABLE Orders;
 
 CREATE TABLE Customers (
-  customer_id INT PRIMARY KEY,
+  Customer_ID INT PRIMARY KEY,
   F_Name VARCHAR(50),
   L_Name VARCHAR(50),
   email VARCHAR(100),
