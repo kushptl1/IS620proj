@@ -11,36 +11,36 @@ CREATE TABLE Customers (
   F_Name VARCHAR(50),
   L_Name VARCHAR(50),
   email VARCHAR(100),
-  city VARCHAR(50),
-  state VARCHAR(50),
-  zip INT
+  City VARCHAR(50),
+  State VARCHAR(50),
+  Zip INT
 );
 
 CREATE TABLE Credit_Cards (
-  card_number INT PRIMARY KEY, 
-  customer_id INT,
-  card_type VARCHAR(10),
-  expiration_year INT,
-  expiration_month INT,
-  FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+  Card_number INT PRIMARY KEY, 
+  Customer_ID INT,
+  Card_type VARCHAR(10),
+  Expiration_year INT,
+  Expiration_month INT,
+  FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
 );
 
 
 Create table Product_Category(
-    pcid number,
-    pcName varchar(30),
-    pcDesc varchar(100),
-    primary key (pcid)
+    ProductCategory_ID number,
+    ProductCategory_Name varchar(30),
+    ProductCategory_Desc varchar(100),
+    primary key (ProductCategory_ID)
 );
 
 Create table Products(
-    product_id number,
-    pcid number,
-    pname varchar(30),
-    avail_quant number,
-    unitprice number,
-    primary key (pid),
-    foreign key (pcid) references Product_Category(pcid)
+    Product_ID number,
+    ProductCategory_ID number,
+    Product_Name varchar(30),
+    Avail_Quant number,
+    Unitprice number,
+    primary key (Product_id),
+    foreign key (ProductCategory_ID) references Product_Category(ProductCategory_ID)
 );
 
 CREATE TABLE Orders (
