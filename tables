@@ -93,3 +93,5 @@ desc Product_Category;
 desc Products;
 desc Orders;
 desc Invoices; 
+desc Reviews;
+desc Recommendations;
