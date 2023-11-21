@@ -5,6 +5,8 @@ DROP TABLE Products;
 DROP TABLE Credit_Cards;
 DROP TABLE Customers;
 Drop TABLE Orders;
+Drop TABLE Reviews;
+Drop TABLE Recommendations;
 
 CREATE TABLE Customers (
   Customer_ID INT PRIMARY KEY,
@@ -61,6 +63,27 @@ CREATE TABLE Invoices (
     CreditCardNumber VARCHAR2(20),
     Amount NUMBER
 );
+
+
+CREATE TABLE Reviews (
+    ReviewID NUMBER PRIMARY KEY,
+    ProductID NUMBER REFERENCES Products(ProductID),
+    ReviewerEmail VARCHAR2(255),
+    StarsGiven NUMBER(1, 0),
+    ReviewText CLOB
+);
+
+CREATE TABLE Recommendations (
+    RecommendationID NUMBER PRIMARY KEY,
+    CustomerID NUMBER REFERENCES Customers(CustomerID),
+    RecommendedProductID NUMBER REFERENCES Products(ProductID),
+    RecommendationDate DATE
+);
+
+
+
+
+
 
 
 
