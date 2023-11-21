@@ -18,3 +18,6 @@ Team Suicide Sqaurd.
 
 **ERD:**
 
+![ER Diagram](https://github.com/kushptl1/IS620proj/assets/150859992/3d79b746-90f2-4135-b254-79f55a37eb43)
+
+The above diagram is the entity relationship diagram for our project which 
