@@ -54,8 +54,19 @@ CREATE TABLE Orders (
     foreign key (Product_ID) references Products(Product_ID)
 );
 
+CREATE TABLE Invoices (
+    InvoiceID NUMBER PRIMARY KEY,
+    OrderID NUMBER REFERENCES Orders(OrderID),
+    CustomerID NUMBER REFERENCES Customers(CustomerID),
+    CreditCardNumber VARCHAR2(20),
+    Amount NUMBER
+);
+
+
+
 desc Customers;
 desc Credit_Cards;
 desc Product_Category;
 desc Products;
 desc Orders;
+desc Invoices; 
