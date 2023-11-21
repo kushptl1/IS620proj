@@ -73,7 +73,7 @@ CREATE TABLE Reviews (
     ReviewText CLOB
 );
 
-CREATE TABLE Recommendations (
+CREATE TABLE Recommendation (
     RecommendationID NUMBER PRIMARY KEY,
     CustomerID NUMBER REFERENCES Customers(CustomerID),
     RecommendedProductID NUMBER REFERENCES Products(ProductID),
