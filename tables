@@ -6,7 +6,7 @@ DROP TABLE Credit_Cards;
 DROP TABLE Customers;
 Drop TABLE Orders;
 Drop TABLE Reviews;
-Drop TABLE Recommendations;
+Drop TABLE Recommendation;
 
 CREATE TABLE Customers (
   Customer_ID INT PRIMARY KEY,
@@ -94,4 +94,4 @@ desc Products;
 desc Orders;
 desc Invoices; 
 desc Reviews;
-desc Recommendations;
+desc Recommendation;
