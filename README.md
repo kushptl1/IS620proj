@@ -12,3 +12,9 @@ Team members:
 
 Team Suicide Sqaurd.
 ![image](https://github.com/kushptl1/IS620proj/assets/150859750/9e062a31-49a1-4904-adba-016609767ccc)
+
+
+**PROJECT DESCRIPTION:**
+
+**ERD:**
+
