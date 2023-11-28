@@ -48,7 +48,7 @@ In our project, E-R Diagram mainly contains the entities such as Customer, Credi
 
 The attributes of all the entities are as follows.
 
-Customer
+Customer:
 	Customer_ID (Primary Key)
 	F_Name
 	L_Name
@@ -57,46 +57,46 @@ Customer
 	State
 	Zip
 	
-Credit_Cards
+Credit_Cards:
 	Card_number (Primary Key)
 	Customer_ID (Foreign Key)
 	Card_type
 	Expiration_year
 	Expiration_month
 
-Product_Category
+Product_Category:
 	ProductCategory_ID (Primary Key)
 	ProductCategory_Name
 	ProductCategory_Desc
 
-Invoices
+Invoices:
 	Invoice_ID (Primary Key)
 	Order_ID (Foreign Key)
 	Customer_ID (Foreign Key)
 	Card_Number (Foreign Key)
 	Amount
 
-Orders
+Orders:
 	Order_ID (Primary Key)
 	Customer_ID (Foreign Key)
 	Product_ID (Foreign Key)
 	Quantity
 	Order_Date
 
-Products
+Products:
 	Product_ID (Primary Key)
 	ProductCategory_ID (Foreign Key)
 	Product_Name
 	Avail_Quant
 	Unitprice
 
-Recommendation
+Recommendation:
 	Recommendation_ID (Primary Key)
 	Customer_ID (Foreign Key)
 	RecommendedProduct_ID
 	Recommendation_Date
 
-Review
+Review:
 	Review_ID (Primary Key)
 	Product_ID (Foreign Key)
 	Reviewer_email
