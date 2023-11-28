@@ -105,7 +105,7 @@ Review
 
 The Customer and Credit_Cards entities have one to many relationship. Here, the single customer can have a multiple credit cards whereas single credit card cannot belong to multiple customers.
 
-The Customer and Orders entities have many to many relationship. As many customers can have many orders.
+The Customer and Orders entities have one to many relationship. As one customers can have many orders and individual order belongs to one customer only.
 
 The Orders and Invoices entities have one to one relationship. It is obvious that the individual order can have only one invoice.
 
