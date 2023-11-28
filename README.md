@@ -47,6 +47,7 @@ The above diagram is the entity relationship diagram for our project.
 In our project, E-R Diagram mainly contains the entities such as Customer, Credit_Cards, Product_Category, Invoices, Orders, Products, Recommendations and Review, as you can see above.
 
 **The attributes of all the entities are as follows:**
+
 Customer:
 	Customer_ID (Primary Key)
 	F_Name
