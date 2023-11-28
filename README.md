@@ -105,7 +105,7 @@ Review
 
 The Customer and Credit_Cards entities have one to many relationship. Here, the single customer can have a multiple credit cards whereas single credit card cannot belong to multiple customers.
 
-The Customer and Orders entities have one to many relationship. As one customers can have many orders and individual order belongs to one customer only.
+The Customer and Orders entities have one to many relationship. As one customers can have many orders and individual order can belong to one customer only.
 
 The Orders and Invoices entities have one to one relationship. It is obvious that the individual order can have only one invoice.
 
@@ -115,10 +115,10 @@ The Orders and Products entities have many to many relationship. As, one order c
 
 The Products and Product_Category entities have many to one relationship. Here, single category can have multiple products but single product can not belong to many categories.
 
-The Products and Review entities have many to many relationship. Multiple products can have multiple reviews from multiple customers.
+The Products and Review entities have one to many relationship. A single product can have multiple reviews. But a single review can belong to single product only.
 
 The Products and Recommendations entities have many to many relationship. Multiple products can have multiple recommendations from multiple customers.
 
-The Recommendations and Customer entities have many to many relationship. As single customer can give many recommendations. Similarly one kind of recommendation can also given by multiple customers. Hence, multiple recommendations can belong to many customers.
+The Recommendations and Customer entities have many to one relationship. As Single customer can give many recommendations. But single recommendation can belong to one customer only. 
 
 Hence, the E-R Diagram basically provides a foundation for design and development of an Online Shopping DB System.
