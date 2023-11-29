@@ -103,7 +103,7 @@ Review:
 	Stars_Given
 	Review_Text
 
-**Relationships and cardinality:**
+**Relationships and Cardinality:**
 
 The Customer and Credit_Cards entities have one to many relationship. Here, the single customer can have a multiple credit cards whereas single credit card cannot belong to multiple customers.
 
