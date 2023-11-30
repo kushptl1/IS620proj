@@ -1,4 +1,4 @@
- **Place_Order Procedure**
+ **Place_Order Procedure**  
 
 -- Procedure to place an order
 CREATE OR REPLACE PROCEDURE Place_Order(
@@ -38,7 +38,7 @@ EXCEPTION
 END;
 
 
-**Show_Orders Procedure**
+**Show_Orders Procedure** 
 
 -- Procedure to show all orders in the online marketplace
 CREATE OR REPLACE PROCEDURE Show_Orders AS
