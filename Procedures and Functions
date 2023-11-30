@@ -1,4 +1,4 @@
- **Place_Order Procedure**  
+*Place_Order Procedure*
 
 -- Procedure to place an order
 CREATE OR REPLACE PROCEDURE Place_Order(
@@ -115,7 +115,6 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Low Inventory Alert: Product ' || :new.ProductID || ' (' || (SELECT ProductName FROM Products WHERE ProductID = :new.ProductID) || ') is below 50 units.');
     END IF;
 END;
-/
 
 -- Procedure to restock a specific product
 CREATE OR REPLACE PROCEDURE Restock_Product(
