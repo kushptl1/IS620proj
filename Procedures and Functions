@@ -1,4 +1,4 @@
-*Place_Order Procedure*
+**Place_Order Procedure**
 
 -- Procedure to place an order
 CREATE OR REPLACE PROCEDURE Place_Order(
