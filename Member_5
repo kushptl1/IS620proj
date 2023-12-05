@@ -8,12 +8,12 @@ CREATE OR REPLACE PROCEDURE Add_Review(
     v_ProductID NUMBER;
 BEGIN
     -- Find the product's ID using the product name
-    SELECT ProductID INTO v_ProductID
+    SELECT Product_ID INTO v_ProductID
     FROM Products
-    WHERE ProductName = p_ProductName;
+    WHERE Product_Name = p_ProductName;
 
     -- Insert the review information
-    INSERT INTO Reviews(ReviewID, ProductID, ReviewerEmail, StarsGiven, ReviewText)
+    INSERT INTO Reviews(Review_ID, Product_ID, ReviewerEmail, StarsGiven, ReviewText)
     VALUES (ReviewID_SEQ.NEXTVAL, v_ProductID, p_ReviewerEmail, p_StarsGiven, p_ReviewText);
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Review added successfully');
@@ -33,32 +33,32 @@ BEGIN
     -- List top-rated products
     DBMS_OUTPUT.PUT_LINE('Top rated products:');
     FOR top_product IN (
-        SELECT AVG(r.StarsGiven) AS AverageStars, p.ProductID, p.ProductName, STDDEV(r.StarsGiven) AS StandardDeviation
+        SELECT AVG(r.StarsGiven) AS AverageStars, p.Product_ID, p.Product_Name, STDDEV(r.StarsGiven) AS StandardDeviation
         FROM Reviews r
-        JOIN Products p ON r.ProductID = p.ProductID
-        GROUP BY p.ProductID, p.ProductName
+        JOIN Products p ON r.Product_ID = p.Product_ID
+        GROUP BY p.Product_ID, p.Product_Name
         ORDER BY AverageStars DESC
     ) LOOP
         EXIT WHEN ROWNUM > p_X;
         DBMS_OUTPUT.PUT_LINE('Average Stars: ' || top_product.AverageStars);
-        DBMS_OUTPUT.PUT_LINE('Product ID: ' || top_product.ProductID);
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || top_product.ProductName);
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || top_product.Product_ID);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || top_product.Product_Name);
         DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || top_product.StandardDeviation);
     END LOOP;
 
     -- List products to beware
     DBMS_OUTPUT.PUT_LINE('Buyer Beware: Stay Away from:');
     FOR worst_product IN (
-        SELECT AVG(r.StarsGiven) AS AverageStars, p.ProductID, p.ProductName, STDDEV(r.StarsGiven) AS StandardDeviation
+        SELECT AVG(r.StarsGiven) AS AverageStars, p.Product_ID, p.Product_Name, STDDEV(r.StarsGiven) AS StandardDeviation
         FROM Reviews r
-        JOIN Products p ON r.ProductID = p.ProductID
-        GROUP BY p.ProductID, p.ProductName
+        JOIN Products p ON r.Product_ID = p.Product_ID
+        GROUP BY p.Product_ID, p.Product_Name
         ORDER BY AverageStars ASC
     ) LOOP
         EXIT WHEN ROWNUM > p_X;
         DBMS_OUTPUT.PUT_LINE('Average Stars: ' || worst_product.AverageStars);
-        DBMS_OUTPUT.PUT_LINE('Product ID: ' || worst_product.ProductID);
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || worst_product.ProductName);
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || worst_product.Product_ID);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || worst_product.Product_Name);
         DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || worst_product.StandardDeviation);
     END LOOP;
 EXCEPTION
@@ -75,33 +75,33 @@ CREATE OR REPLACE PROCEDURE Recommend_To_Customer(
 ) AS
 BEGIN
     FOR customer IN (
-        SELECT DISTINCT c.CustomerID, c.Name, r.ProductID AS BoughtProductID
+        SELECT DISTINCT c.Customer_ID, c.F_Name, c.L_Name, r.Product_ID AS BoughtProductID
         FROM Customers c
-        JOIN Orders o ON c.CustomerID = o.CustomerID
-        LEFT JOIN Recommendations r ON c.CustomerID = r.CustomerID
+        JOIN Orders o ON c.Customer_ID = o.Customer_ID
+        LEFT JOIN Recommendations r ON c.Customer_ID = r.Customer_ID
     ) LOOP
         FOR recommended_product IN (
-            SELECT r.ProductID AS RecommendedProductID
+            SELECT r.Product_ID AS RecommendedProduct_ID
             FROM Reviews r
-            WHERE r.ProductID NOT IN (
-                SELECT o.ProductID
+            WHERE r.Product_ID NOT IN (
+                SELECT o.Product_ID
                 FROM Orders o
-                WHERE o.CustomerID = customer.CustomerID
+                WHERE o.Customer_ID = customer.Customer_ID
             )
-            AND r.ProductID IN (
-                SELECT p.ProductID
+            AND r.Product_ID IN (
+                SELECT p.Product_ID
                 FROM Products p
-                WHERE p.CategoryID IN (
-                    SELECT p.CategoryID
+                WHERE p.ProductCategory_ID IN (
+                    SELECT p.ProductCategory_ID
                     FROM Products p
-                    WHERE p.ProductID = customer.BoughtProductID
+                    WHERE p.Product_ID = customer.BoughtProductID
                 )
             )
             AND ROWNUM = 1
         ) LOOP
             -- Insert the recommendation
-            INSERT INTO Recommendations(RecommendationID, CustomerID, RecommendedProductID, RecommendationDate)
-            VALUES (RecommendationID_SEQ.NEXTVAL, customer.CustomerID, recommended_product.RecommendedProductID, SYSDATE);
+            INSERT INTO Recommendations(Recommendation_ID, Customer_ID, RecommendedProduct_ID, RecommendationDate)
+            VALUES (Recommendation_ID_SEQ.NEXTVAL, customer.Customer_ID, recommended_product.RecommendedProduct_ID, SYSDATE);
             COMMIT;
             DBMS_OUTPUT.PUT_LINE('Recommendation added successfully');
         END LOOP;
@@ -117,12 +117,12 @@ END;
 CREATE OR REPLACE PROCEDURE List_Recommendations AS
 BEGIN
     FOR recommendation_info IN (
-        SELECT c.Name AS CustomerName, p.ProductName AS RecommendedProduct, AVG(r.StarsGiven) AS AverageStars
+        SELECT c.F_Name AS CustomerName, p.Product_Name AS RecommendedProduct, AVG(r.StarsGiven) AS AverageStars
         FROM Recommendations rec
-        JOIN Customers c ON rec.CustomerID = c.CustomerID
-        JOIN Products p ON rec.RecommendedProductID = p.ProductID
-        JOIN Reviews r ON rec.RecommendedProductID = r.ProductID
-        GROUP BY c.Name, p.ProductName
+        JOIN Customers c ON rec.Customer_ID = c.Customer_ID
+        JOIN Products p ON rec.RecommendedProduct_ID = p.Product_ID
+        JOIN Reviews r ON rec.RecommendedProduct_ID = r.Product_ID
+        GROUP BY c.F_Name, p.ProductName
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Customer Name: ' || recommendation_info.CustomerName);
         DBMS_OUTPUT.PUT_LINE('Recommended Product: ' || recommendation_info.RecommendedProduct);
