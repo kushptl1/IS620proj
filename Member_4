@@ -1,0 +1,106 @@
+
+-- Procedure to create an invoice for a customer
+CREATE OR REPLACE PROCEDURE Invoice_Customer(
+    p_OrderID IN NUMBER,
+    p_CustomerID IN NUMBER,
+    p_CreditCardNumber IN VARCHAR2,
+    p_Amount IN NUMBER
+) AS
+BEGIN
+    -- Insert the invoice information
+    INSERT INTO Invoices(InvoiceID, OrderID, CustomerID, CreditCardNumber, Amount)
+    VALUES (InvoiceID_SEQ.NEXTVAL, p_OrderID, p_CustomerID, p_CreditCardNumber, p_Amount);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Invoice created successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to report the best customers
+CREATE OR REPLACE PROCEDURE Report_Best_Customers(
+    p_DollarAmount IN NUMBER
+) AS
+BEGIN
+    FOR customer_info IN (
+        SELECT c.Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
+        FROM Invoices i
+        JOIN Customers c ON i.CustomerID = c.CustomerID
+        GROUP BY c.Name
+        HAVING SUM(i.Amount) > p_DollarAmount
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || customer_info.CustomerName);
+        DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || customer_info.TotalAmountSpent);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to report the best customers
+CREATE OR REPLACE PROCEDURE Report_Best_Customers(
+    p_DollarAmount IN NUMBER
+) AS
+BEGIN
+    FOR customer_info IN (
+        SELECT c.Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
+        FROM Invoices i
+        JOIN Customers c ON i.CustomerID = c.CustomerID
+        GROUP BY c.Name
+        HAVING SUM(i.Amount) > p_DollarAmount
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || customer_info.CustomerName);
+        DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || customer_info.TotalAmountSpent);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to calculate payments to credit card companies
+CREATE OR REPLACE PROCEDURE Payments_to_CC AS
+BEGIN
+    FOR payment_info IN (
+        SELECT cc.CreditCardType, SUM(i.Amount) * (
+            CASE
+                WHEN cc.CreditCardType = 'VISA' THEN 0.03
+                WHEN cc.CreditCardType = 'MC' THEN 0.03
+                WHEN cc.CreditCardType = 'AMEX' THEN 0.05
+                WHEN cc.CreditCardType = 'Discover' THEN 0.02
+            END
+        ) AS PaymentAmount
+        FROM Invoices i
+        JOIN CreditCards cc ON i.CreditCardNumber = cc.CreditCardNumber
+        GROUP BY cc.CreditCardType
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Payment to ' || payment_info.CreditCardType || ': ' || payment_info.PaymentAmount);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to identify thrifty customers
+CREATE OR REPLACE PROCEDURE Thrifty_Customer(
+    p_X IN NUMBER
+) AS
+BEGIN
+    FOR thrifty_customer IN (
+        SELECT c.Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
+        FROM Invoices i
+        JOIN Customers c ON i.CustomerID = c.CustomerID
+        GROUP BY c.Name
+        ORDER BY TotalAmountSpent ASC
+    ) LOOP
+        IF ROWNUM <= p_X THEN
+            DBMS_OUTPUT.PUT_LINE('Thrifty Customer: ' || thrifty_customer.CustomerName);
+            DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || thrifty_customer.TotalAmountSpent);
+        ELSE
+            EXIT;
+        END IF;
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
