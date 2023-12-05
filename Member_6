@@ -4,7 +4,7 @@ BEGIN
     FOR state_income IN (
         SELECT c.State, SUM(i.Amount) AS TotalIncome
         FROM Invoices i
-        JOIN Customers c ON i.CustomerID = c.CustomerID
+        JOIN Customers c ON i.Customer_ID = c.Customer_ID
         GROUP BY c.State
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('State: ' || state_income.State);
@@ -22,17 +22,17 @@ CREATE OR REPLACE PROCEDURE Best_Selling_Products(
 ) AS
 BEGIN
     FOR best_selling_product IN (
-        SELECT p.ProductName, pc.CategoryName, SUM(o.Quantity) AS TotalUnitsSold, SUM(i.Amount) AS TotalAmount
+        SELECT p.Product_Name, pc.ProductCategory_Name, SUM(o.Quantity) AS TotalUnitsSold, SUM(i.Amount) AS TotalAmount
         FROM Products p
-        JOIN Orders o ON p.ProductID = o.ProductID
-        JOIN Product_Categories pc ON p.CategoryID = pc.CategoryID
-        JOIN Invoices i ON o.OrderID = i.OrderID
-        GROUP BY p.ProductName, pc.CategoryName
+        JOIN Orders o ON p.Product_ID = o.Product_ID
+        JOIN Product_Categories pc ON p.ProductCategory_ID = pc.ProductCategory_ID
+        JOIN Invoices i ON o.Order_ID = i.Order_ID
+        GROUP BY p.Product_Name, pc.ProductCategory_Name
         ORDER BY TotalUnitsSold DESC
     ) LOOP
         EXIT WHEN ROWNUM > p_X;
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || best_selling_product.ProductName);
-        DBMS_OUTPUT.PUT_LINE('Category: ' || best_selling_product.CategoryName);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || best_selling_product.Product_Name);
+        DBMS_OUTPUT.PUT_LINE('Category: ' || best_selling_product.ProductCategory_Name);
         DBMS_OUTPUT.PUT_LINE('Total Units Sold: ' || best_selling_product.TotalUnitsSold);
         DBMS_OUTPUT.PUT_LINE('Total Amount Collected: ' || best_selling_product.TotalAmount);
     END LOOP;
@@ -46,16 +46,16 @@ END;
 CREATE OR REPLACE PROCEDURE Recommendations_Follow_Up AS
 BEGIN
     FOR recommendation_info IN (
-        SELECT c.Name AS CustomerName, p.ProductName AS RecommendedProduct,
+        SELECT c.F_Name AS CustomerName, p.Product_Name AS RecommendedProduct,
                CASE
-                   WHEN r.CustomerID IS NOT NULL THEN 'Recommendation followed'
+                   WHEN r.Customer_ID IS NOT NULL THEN 'Recommendation followed'
                    ELSE 'Recommendation not followed yet'
                END AS FollowUpStatus
         FROM Recommendations rec
-        JOIN Customers c ON rec.CustomerID = c.CustomerID
-        JOIN Products p ON rec.RecommendedProductID = p.ProductID
-        LEFT JOIN Orders o ON c.CustomerID = o.CustomerID AND rec.RecommendedProductID = o.ProductID
-        LEFT JOIN Recommendations r ON c.CustomerID = r.CustomerID AND rec.RecommendedProductID = r.RecommendedProductID
+        JOIN Customers c ON rec.Customer_ID = c.Customer_ID
+        JOIN Products p ON rec.RecommendedProduct_ID = p.Product_ID
+        LEFT JOIN Orders o ON c.Customer_ID = o.Customer_ID AND rec.RecommendedProduct_ID = o.Product_ID
+        LEFT JOIN Recommendations r ON c.Customer_ID = r.Customer_ID AND rec.RecommendedProduct_ID = r.RecommendedProduct_ID
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Customer Name: ' || recommendation_info.CustomerName);
         DBMS_OUTPUT.PUT_LINE('Recommended Product: ' || recommendation_info.RecommendedProduct);
@@ -73,13 +73,13 @@ CREATE OR REPLACE PROCEDURE Products_Ordered_By_Time_Interval(
 ) AS
 BEGIN
     FOR product_info IN (
-        SELECT p.ProductName, SUM(o.Quantity) AS TotalUnitsOrdered, COUNT(DISTINCT o.CustomerID) AS TotalCustomers
+        SELECT p.Product_Name, SUM(o.Quantity) AS TotalUnitsOrdered, COUNT(DISTINCT o.CustomerID) AS TotalCustomers
         FROM Products p
-        JOIN Orders o ON p.ProductID = o.ProductID
+        JOIN Orders o ON p.Product_ID = o.Product_ID
         WHERE o.OrderDate BETWEEN p_StartDate AND p_EndDate
-        GROUP BY p.ProductName
+        GROUP BY p.Product_Name
     ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || product_info.ProductName);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || product_info.Product_Name);
         DBMS_OUTPUT.PUT_LINE('Total Units Ordered: ' || product_info.TotalUnitsOrdered);
         DBMS_OUTPUT.PUT_LINE('Total Customers: ' || product_info.TotalCustomers);
     END LOOP;
