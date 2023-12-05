@@ -15,21 +15,21 @@ END;
 
 -- Procedure to add a new product
 CREATE OR REPLACE PROCEDURE Add_Product(
-    p_ProductName IN VARCHAR2,
-    p_AvailableQuantity IN NUMBER,
+    p_Product_Name IN VARCHAR2,
+    p_Avail_Quant IN NUMBER,
     p_UnitPrice IN NUMBER,
-    p_CategoryName IN VARCHAR2
+    p_ProductCategory_Name IN VARCHAR2
 ) AS
     v_CategoryID NUMBER;
 BEGIN
     -- Find the category ID using the category name
-    SELECT CategoryID INTO v_CategoryID
+    SELECT ProductCategory_ID INTO v_CategoryID
     FROM ProductCategories
-    WHERE CategoryName = p_CategoryName;
+    WHERE CategoryName = p_ProductCategory_Name;
 
     -- Insert the product information
-    INSERT INTO Products(ProductID, ProductName, AvailableQuantity, UnitPrice, CategoryID)
-    VALUES (ProductID_SEQ.NEXTVAL, p_ProductName, p_AvailableQuantity, p_UnitPrice, v_CategoryID);
+    INSERT INTO Products(Product_ID, Product_Name, Avail_Quant, UnitPrice, ProdctCategory_ID)
+    VALUES (Product_ID_SEQ.NEXTVAL, p_Product_Name, p_Avail_Quant, p_UnitPrice, v_ProductCategory_ID);
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Product added successfully');
 EXCEPTION
@@ -41,7 +41,7 @@ END;
 
 -- Procedure to update product inventory after an order
 CREATE OR REPLACE PROCEDURE Update_Inventory(
-    p_ProductName IN VARCHAR2,
+    p_Product_Name IN VARCHAR2,
     p_Quantity IN NUMBER
 ) AS
 BEGIN
