@@ -21,7 +21,8 @@ x.zip:=zipp;
 INSERT INTO CUSTOMERS VALUES  x;
 dbms_output.put_line('ADDING CUSTOMER '||x.fname||' '||x.lname);
 END;
-/
+
+
 --creating a function to find Customer Id when name is given
 CREATE OR REPLACE FUNCTION Fcustomer_id(p_fname IN Customers.fname%TYPE,p_lname IN Customers.lname%TYPE)
 RETURN NUMBER
@@ -40,7 +41,7 @@ EXCEPTION
 	 dbms_output.put_line('more than one customer with the name, return the first one');
 	 return cid;
 END;
-/
+
 --Implementing procedure to add credit card details for finding further details when details of customer including credit card are needed when a state name is given
 create or replace procedure Add_CreditCard(cardno in int,CustoID in INT,cardty in VARCHAR,expyear in int,expmonth in int)as
 y Credit_Cards%rowtype;
@@ -53,7 +54,8 @@ y.expiration_month:=expmonth;
 INSERT INTO Credit_Cards VALUES y;
 dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
 END;
-/
+
+
 --Procedure to find Customer details when state name is given
 create or replace procedure Show_all_customers_in_state(
   sta in VARCHAR) as
