@@ -12,19 +12,20 @@ create or replace procedure Add_Customer(cust in INT ,
 x customers%rowtype;
 begin
 x.customer_ID:=cust;
-x.fname:=fnam;
-x.lname:=lnam;
+x.f_name:=fnam;
+x.l_name:=lnam;
 x.email:=mail;
 x.city:=cit;
 x.state:=stat;
 x.zip:=zipp;
 INSERT INTO CUSTOMERS VALUES  x;
-dbms_output.put_line('ADDING CUSTOMER '||x.fname||' '||x.lname);
+dbms_output.put_line('ADDING CUSTOMER '||x.f_name||' '||x.l_name);
 END;
 
 
+
 --creating a function to find Customer Id when name is given
-CREATE OR REPLACE FUNCTION Fcustomer_id(p_fname IN Customers.fname%TYPE,p_lname IN Customers.lname%TYPE)
+CREATE OR REPLACE FUNCTION Fcustomer_id(p_fname IN Customers.f_name%TYPE,p_lname IN Customers.l_name%TYPE)
 RETURN NUMBER
 IS
     cid Customers.customer_id%TYPE;
