@@ -25,14 +25,14 @@ END;
 
 
 --creating a function to find Customer Id when name is given
-CREATE OR REPLACE FUNCTION Fcustomer_id(p_fname IN Customers.f_name%TYPE,p_lname IN Customers.l_name%TYPE)
+CREATE OR REPLACE FUNCTION Fcustomer_id(p_f_name IN Customers.f_name%TYPE,p_l_name IN Customers.l_name%TYPE)
 RETURN NUMBER
 IS
     cid Customers.customer_id%TYPE;
 BEGIN
       select customer_id into cid
       from customers
-      where fname = p_fname and lname=p_lname;
+      where f_name = p_f_name and l_name=p_l_name;
       RETURN cid;
 EXCEPTION
     when no_data_found then
@@ -60,14 +60,14 @@ END;
 --Procedure to find Customer details when state name is given
 create or replace procedure Show_all_customers_in_state(
   sta in VARCHAR) as
-cursor c1 is select fname,lname,email,card_number,card_type
+cursor c1 is select f_name,l_name,email,card_number,card_type
 from customers,credit_cards
 where customers.customer_id = credit_cards.customer_id and customers.state=sta;
 begin
 dbms_output.put_line('Customers in '||sta);
 for i in c1
 Loop
- dbms_output.put_line(i.fname||'   '||i.lname||' | | '||i.email||' | | ' ||i.card_number||' | | '||i.card_type);
+ dbms_output.put_line(i.f_name||'   '||i.l_name||' | | '||i.email||' | | ' ||i.card_number||' | | '||i.card_type);
 end loop;
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
@@ -78,17 +78,17 @@ END;
 create or replace Procedure Report_Cards_Expire(dat in date)as
 BEGIN
   FOR s IN (
-    SELECT c.lname, c.fname, cc.card_number, cc.card_type, cc.expiration_year, cc.expiration_month
+    SELECT c.l_name, c.f_name, cc.card_number, cc.card_type, cc.expiration_year, cc.expiration_month
     FROM Customers c
     JOIN Credit_Cards cc ON c.customer_id = cc.customer_id
    WHERE (cc.expiration_year=EXTRACT(YEAR FROM dat) and EXTRACT(YEAR FROM dat)= EXTRACT(YEAR FROM dat-interval '2' month) AND 
        cc.expiration_month >= EXTRACT(MONTH FROM dat-interval '2' month)and cc.expiration_month <= EXTRACT(MONTH FROM dat))
 or (EXTRACT(YEAR FROM dat) > EXTRACT(YEAR FROM dat-interval '2' month) and cc.expiration_month >= EXTRACT(MONTH FROM dat-interval '2' month))
-    ORDER BY c.lname, c.fname
+    ORDER BY c.l_name, c.f_name
 )
   LOOP
 DBMS_OUTPUT.PUT_LINE(
-      s.lname || ', ' || s.fname || ', ' || s.card_number || ', ' ||
+      s.l_name || ', ' || s.f_name || ', ' || s.card_number || ', ' ||
       s.card_type || ', ' || s.expiration_year || ', ' || s.expiration_month
     );
   END LOOP;
@@ -97,4 +97,3 @@ exception
 	dbms_output.put_line('no data is found');
 
 END;
-/
