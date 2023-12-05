@@ -1,11 +1,12 @@
+
 -- Procedure to add a new product category
 CREATE OR REPLACE PROCEDURE Add_Category(
-    p_CategoryName IN VARCHAR2,
-    p_Description IN VARCHAR2
+    p_ProductCategory_Name IN VARCHAR2,
+    p_ProductCategory_Desc IN VARCHAR2
 ) AS
 BEGIN
-    INSERT INTO ProductCategories(CategoryID, CategoryName, Description)
-    VALUES (CategoryID_SEQ.NEXTVAL, p_CategoryName, p_Description);
+    INSERT INTO Product_Category(ProductCategory_ID, ProductCategory_Name, ProductCategory_Desc)
+    VALUES (ProductCategory_ID_SEQ.NEXTVAL, p_ProductCategory_Name, p_ProductCategory_Desc);
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Product category added successfully');
 EXCEPTION
@@ -20,12 +21,12 @@ CREATE OR REPLACE PROCEDURE Add_Product(
     p_UnitPrice IN NUMBER,
     p_ProductCategory_Name IN VARCHAR2
 ) AS
-    v_CategoryID NUMBER;
+    v_ProductCategory_ID NUMBER;
 BEGIN
     -- Find the category ID using the category name
-    SELECT ProductCategory_ID INTO v_CategoryID
-    FROM ProductCategories
-    WHERE CategoryName = p_ProductCategory_Name;
+    SELECT ProductCategory_ID INTO v_ProductCategory_ID
+    FROM Product_Category
+    WHERE ProductCategory_Name = p_ProductCategory_Name;
 
     -- Insert the product information
     INSERT INTO Products(Product_ID, Product_Name, Avail_Quant, UnitPrice, ProdctCategory_ID)
@@ -46,7 +47,7 @@ CREATE OR REPLACE PROCEDURE Update_Inventory(
 ) AS
 BEGIN
     UPDATE Products
-    SET AvailableQuantity = AvailableQuantity - p_Quantity
+    SET AvailableQuantity = Avail_Quant - p_Quantity
     WHERE ProductName = p_ProductName;
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Inventory updated successfully');
@@ -59,12 +60,12 @@ END;
 CREATE OR REPLACE PROCEDURE Report_Inventory AS
 BEGIN
     FOR category IN (
-        SELECT pc.CategoryName, SUM(p.AvailableQuantity) AS TotalQuantity
-        FROM ProductCategories pc
-        LEFT JOIN Products p ON pc.CategoryID = p.CategoryID
-        GROUP BY pc.CategoryName
+        SELECT pc.ProductCategory_Name, SUM(p.AvailQuant) AS TotalQuantity
+        FROM Product_Category pc
+        LEFT JOIN Products p ON pc.ProductCategory_ID = p.ProductCategory_ID
+        GROUP BY pc.ProductCategory_Name
     ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Category: ' || category.CategoryName);
+        DBMS_OUTPUT.PUT_LINE('Category: ' || category.ProductCategory_Name);
         DBMS_OUTPUT.PUT_LINE('Total Quantity: ' || category.TotalQuantity);
     END LOOP;
 EXCEPTION
