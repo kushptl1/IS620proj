@@ -1,12 +1,13 @@
 Set Serveroutput on;
 
-DROP TABLE Product_Category;
+DROP TABLE Recommendation;
+DROP TABLE Reviews;
+DROP TABLE Invoices;
+DROP TABLE Orders;
 DROP TABLE Products;
+DROP TABLE Product_Category;
 DROP TABLE Credit_Cards;
 DROP TABLE Customers;
-DROP TABLE Orders;
-DROP TABLE Reviews;
-DROP TABLE Recommendation;
 
 CREATE TABLE Customers (
   Customer_ID INT PRIMARY KEY,
@@ -27,11 +28,11 @@ CREATE TABLE Credit_Cards (
   FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
 );
 
-CREATE TABLE Product_Category (
+CREATE TABLE Product_Category(
     ProductCategory_ID NUMBER PRIMARY KEY,
     ProductCategory_Name VARCHAR(30),
-    ProductCategory_Desc VARCHAR(100),
-);
+    ProductCategory_Desc VARCHAR(100)
+    );
 
 CREATE TABLE Products (
     Product_ID NUMBER,
@@ -49,46 +50,39 @@ CREATE TABLE Orders (
     Product_ID number,
     Quantity number,
     Order_Date date,
-    primary key (Order_ID);
+    primary key (Order_ID),
     foreign key (Customer_ID) references Customers(Customer_ID),
     foreign key (Product_ID) references Products(Product_ID)
 );
 
 CREATE TABLE Invoices (
-    InvoiceID NUMBER PRIMARY KEY,
-    OrderID NUMBER REFERENCES Orders(OrderID),
-    CustomerID NUMBER REFERENCES Customers(CustomerID),
+    Invoice_ID NUMBER PRIMARY KEY,
+    Order_ID NUMBER REFERENCES Orders(Order_ID),
+    Customer_ID NUMBER REFERENCES Customers(Customer_ID),
     CreditCardNumber VARCHAR2(20),
     Amount NUMBER
 );
 
 CREATE TABLE Reviews (
-    ReviewID NUMBER PRIMARY KEY,
-    ProductID NUMBER REFERENCES Products(ProductID),
+    Review_ID NUMBER PRIMARY KEY,
+    Product_ID NUMBER REFERENCES Products(Product_ID),
     ReviewerEmail VARCHAR2(255),
     StarsGiven NUMBER(1, 0),
     ReviewText CLOB
 );
 
 CREATE TABLE Recommendation (
-    RecommendationID NUMBER PRIMARY KEY,
-    CustomerID NUMBER REFERENCES Customers(CustomerID),
-    RecommendedProductID NUMBER REFERENCES Products(ProductID),
+    Recommendation_ID NUMBER PRIMARY KEY,
+    Customer_ID NUMBER REFERENCES Customers(Customer_ID),
+    RecommendedProduct_ID NUMBER REFERENCES Products(Product_ID),
     RecommendationDate DATE
 );
-
-
-
-
-
-
-
 
 desc Customers;
 desc Credit_Cards;
 desc Product_Category;
 desc Products;
 desc Orders;
-desc Invoices; 
+desc Invoices;
 desc Reviews;
 desc Recommendation;
