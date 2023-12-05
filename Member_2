@@ -1,1 +1,73 @@
-kasgdkhgasd
+-- Procedure to add a new product category
+CREATE OR REPLACE PROCEDURE Add_Category(
+    p_CategoryName IN VARCHAR2,
+    p_Description IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO ProductCategories(CategoryID, CategoryName, Description)
+    VALUES (CategoryID_SEQ.NEXTVAL, p_CategoryName, p_Description);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Product category added successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to add a new product
+CREATE OR REPLACE PROCEDURE Add_Product(
+    p_ProductName IN VARCHAR2,
+    p_AvailableQuantity IN NUMBER,
+    p_UnitPrice IN NUMBER,
+    p_CategoryName IN VARCHAR2
+) AS
+    v_CategoryID NUMBER;
+BEGIN
+    -- Find the category ID using the category name
+    SELECT CategoryID INTO v_CategoryID
+    FROM ProductCategories
+    WHERE CategoryName = p_CategoryName;
+
+    -- Insert the product information
+    INSERT INTO Products(ProductID, ProductName, AvailableQuantity, UnitPrice, CategoryID)
+    VALUES (ProductID_SEQ.NEXTVAL, p_ProductName, p_AvailableQuantity, p_UnitPrice, v_CategoryID);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Product added successfully');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Category not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to update product inventory after an order
+CREATE OR REPLACE PROCEDURE Update_Inventory(
+    p_ProductName IN VARCHAR2,
+    p_Quantity IN NUMBER
+) AS
+BEGIN
+    UPDATE Products
+    SET AvailableQuantity = AvailableQuantity - p_Quantity
+    WHERE ProductName = p_ProductName;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Inventory updated successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to report available inventory
+CREATE OR REPLACE PROCEDURE Report_Inventory AS
+BEGIN
+    FOR category IN (
+        SELECT pc.CategoryName, SUM(p.AvailableQuantity) AS TotalQuantity
+        FROM ProductCategories pc
+        LEFT JOIN Products p ON pc.CategoryID = p.CategoryID
+        GROUP BY pc.CategoryName
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Category: ' || category.CategoryName);
+        DBMS_OUTPUT.PUT_LINE('Total Quantity: ' || category.TotalQuantity);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
