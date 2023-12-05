@@ -1,0 +1,97 @@
+--Creating sequence to auto increment Customer Id
+drop sequence customer_id_seq;
+CREATE SEQUENCE customer_id_seq START WITH 1;
+--Adding Customers into the table
+create or replace procedure Add_Customer(cust in INT ,
+  fnam in VARCHAR,
+  lnam in VARCHAR,
+  mail in VARCHAR,
+  cit in VARCHAR,
+  stat in VARCHAR,
+  zipp in VARCHAR) as
+x customers%rowtype;
+begin
+x.customer_ID:=cust;
+x.fname:=fnam;
+x.lname:=lnam;
+x.email:=mail;
+x.city:=cit;
+x.state:=stat;
+x.zip:=zipp;
+INSERT INTO CUSTOMERS VALUES  x;
+dbms_output.put_line('ADDING CUSTOMER '||x.fname||' '||x.lname);
+END;
+/
+--creating a function to find Customer Id when name is given
+CREATE OR REPLACE FUNCTION Fcustomer_id(p_fname IN Customers.fname%TYPE,p_lname IN Customers.lname%TYPE)
+RETURN NUMBER
+IS
+    cid Customers.customer_id%TYPE;
+BEGIN
+      select customer_id into cid
+      from customers
+      where fname = p_fname and lname=p_lname;
+      RETURN cid;
+EXCEPTION
+    when no_data_found then
+	 dbms_output.put_line('no such customers');
+	 return -1;
+	when too_many_rows then
+	 dbms_output.put_line('more than one customer with the name, return the first one');
+	 return cid;
+END;
+/
+--Implementing procedure to add credit card details for finding further details when details of customer including credit card are needed when a state name is given
+create or replace procedure Add_CreditCard(cardno in int,CustoID in INT,cardty in VARCHAR,expyear in int,expmonth in int)as
+y Credit_Cards%rowtype;
+begin
+y.card_number:=cardno;
+y.customer_id:=CustoID;
+y.card_type:=cardty;
+y.expiration_year:=expyear;
+y.expiration_month:=expmonth;
+INSERT INTO Credit_Cards VALUES y;
+dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
+END;
+/
+--Procedure to find Customer details when state name is given
+create or replace procedure Show_all_customers_in_state(
+  sta in VARCHAR) as
+cursor c1 is select fname,lname,email,card_number,card_type
+from customers,credit_cards
+where customers.customer_id = credit_cards.customer_id and customers.state=sta;
+begin
+dbms_output.put_line('Customers in '||sta);
+for i in c1
+Loop
+ dbms_output.put_line(i.fname||'   '||i.lname||' | | '||i.email||' | | ' ||i.card_number||' | | '||i.card_type);
+end loop;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No customers found in ' || sta);
+END;
+/
+--creating a procedure to find the customer details whose credit card is going to expire before 2 months of given date
+create or replace Procedure Report_Cards_Expire(dat in date)as
+BEGIN
+  FOR s IN (
+    SELECT c.lname, c.fname, cc.card_number, cc.card_type, cc.expiration_year, cc.expiration_month
+    FROM Customers c
+    JOIN Credit_Cards cc ON c.customer_id = cc.customer_id
+   WHERE (cc.expiration_year=EXTRACT(YEAR FROM dat) and EXTRACT(YEAR FROM dat)= EXTRACT(YEAR FROM dat-interval '2' month) AND 
+       cc.expiration_month >= EXTRACT(MONTH FROM dat-interval '2' month)and cc.expiration_month <= EXTRACT(MONTH FROM dat))
+or (EXTRACT(YEAR FROM dat) > EXTRACT(YEAR FROM dat-interval '2' month) and cc.expiration_month >= EXTRACT(MONTH FROM dat-interval '2' month))
+    ORDER BY c.lname, c.fname
+)
+  LOOP
+DBMS_OUTPUT.PUT_LINE(
+      s.lname || ', ' || s.fname || ', ' || s.card_number || ', ' ||
+      s.card_type || ', ' || s.expiration_year || ', ' || s.expiration_month
+    );
+  END LOOP;
+exception
+	when no_data_found then
+	dbms_output.put_line('no data is found');
+
+END;
+/
