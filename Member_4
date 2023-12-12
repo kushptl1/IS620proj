@@ -25,10 +25,10 @@ CREATE OR REPLACE PROCEDURE Report_Best_Customers(
 ) AS
 BEGIN
     FOR customer_info IN (
-        SELECT c.Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
+        SELECT c.F_Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
         FROM Invoices i
-        JOIN Customers c ON i.CustomerID = c.CustomerID
-        GROUP BY c.Name
+        JOIN Customers c ON i.Customer_ID = c.Customer_ID
+        GROUP BY c.F_Name
         HAVING SUM(i.Amount) > p_DollarAmount
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Customer Name: ' || customer_info.CustomerName);
