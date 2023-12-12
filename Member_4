@@ -1,4 +1,6 @@
 
+CREATE sequence InvoiceID_SEQ start with 1;
+
 -- Procedure to create an invoice for a customer
 CREATE OR REPLACE PROCEDURE Invoice_Customer(
     p_OrderID IN NUMBER,
