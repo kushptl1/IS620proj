@@ -1,4 +1,19 @@
 
+-- Drop sequences with correct names
+DROP SEQUENCE Category_Seq;
+DROP SEQUENCE Product_Seq;
+DROP SEQUENCE Update_Seq;
+DROP SEQUENCE Report_Seq;
+
+-- Create the sequence Category_Seq
+CREATE SEQUENCE Category_Seq START WITH 1 INCREMENT BY 1;
+-- Create the sequence Product_Seq
+CREATE SEQUENCE Product_Seq START WITH 1 INCREMENT BY 1;
+-- Create the sequence Update_Seq
+CREATE SEQUENCE Update_Seq START WITH 1 INCREMENT BY 1;
+-- Create the sequence Report_Seq
+CREATE SEQUENCE Report_Seq START WITH 1 INCREMENT BY 1;
+
 -- Procedure to add a new product category
 CREATE OR REPLACE PROCEDURE Add_Category(
     p_ProductCategory_Name IN VARCHAR2,
@@ -6,7 +21,7 @@ CREATE OR REPLACE PROCEDURE Add_Category(
 ) AS
 BEGIN
     INSERT INTO Product_Category(ProductCategory_ID, ProductCategory_Name, ProductCategory_Desc)
-    VALUES (ProductCategory_ID_SEQ.NEXTVAL, p_ProductCategory_Name, p_ProductCategory_Desc);
+    VALUES (Category_Seq.NEXTVAL, p_ProductCategory_Name, p_ProductCategory_Desc);
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Product category added successfully');
 EXCEPTION
@@ -29,8 +44,8 @@ BEGIN
     WHERE ProductCategory_Name = p_ProductCategory_Name;
 
     -- Insert the product information
-    INSERT INTO Products(Product_ID, Product_Name, Avail_Quant, UnitPrice, ProdctCategory_ID)
-    VALUES (Product_ID_SEQ.NEXTVAL, p_Product_Name, p_Avail_Quant, p_UnitPrice, v_ProductCategory_ID);
+    INSERT INTO Products(Product_ID, Product_Name, Avail_Quant, Unitprice, ProductCategory_ID)
+    VALUES (Product_Seq.NEXTVAL, p_Product_Name, p_Avail_Quant, p_UnitPrice, v_ProductCategory_ID);
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Product added successfully');
 EXCEPTION
@@ -42,13 +57,13 @@ END;
 
 -- Procedure to update product inventory after an order
 CREATE OR REPLACE PROCEDURE Update_Inventory(
-    p_Product_Name IN VARCHAR2,
+    p_ProductName IN VARCHAR2,
     p_Quantity IN NUMBER
 ) AS
 BEGIN
     UPDATE Products
-    SET AvailableQuantity = Avail_Quant - p_Quantity
-    WHERE ProductName = p_ProductName;
+    SET Avail_Quant = Avail_Quant - p_Quantity
+    WHERE Product_Name = p_ProductName;
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('Inventory updated successfully');
 EXCEPTION
@@ -60,7 +75,7 @@ END;
 CREATE OR REPLACE PROCEDURE Report_Inventory AS
 BEGIN
     FOR category IN (
-        SELECT pc.ProductCategory_Name, SUM(p.AvailQuant) AS TotalQuantity
+        SELECT pc.ProductCategory_Name, SUM(p.Avail_Quant) AS TotalQuantity
         FROM Product_Category pc
         LEFT JOIN Products p ON pc.ProductCategory_ID = p.ProductCategory_ID
         GROUP BY pc.ProductCategory_Name
