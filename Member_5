@@ -80,9 +80,8 @@ END;
 /
 
 
-
+//not working ASWIN
 **Recommend_To_Customer Procedure**
-
 -- Procedure to calculate a recommendation for a customer
 CREATE OR REPLACE PROCEDURE Recommend_To_Customer(
     p_CustomerID IN NUMBER
@@ -125,18 +124,17 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
-**List_Recommendations Procedure**
 
 -- Procedure to list all customer recommendations
 CREATE OR REPLACE PROCEDURE List_Recommendations AS
 BEGIN
     FOR recommendation_info IN (
         SELECT c.F_Name AS CustomerName, p.Product_Name AS RecommendedProduct, AVG(r.StarsGiven) AS AverageStars
-        FROM Recommendations rec
+        FROM Recommendation rec
         JOIN Customers c ON rec.Customer_ID = c.Customer_ID
         JOIN Products p ON rec.RecommendedProduct_ID = p.Product_ID
         JOIN Reviews r ON rec.RecommendedProduct_ID = r.Product_ID
-        GROUP BY c.F_Name, p.ProductName
+        GROUP BY c.F_Name, p.Product_Name
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Customer Name: ' || recommendation_info.CustomerName);
         DBMS_OUTPUT.PUT_LINE('Recommended Product: ' || recommendation_info.RecommendedProduct);
@@ -146,3 +144,6 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+/
+
+
