@@ -1,3 +1,6 @@
+-- Create the sequence for Review_ID
+CREATE SEQUENCE ReviewID_SEQ START WITH 1;
+
 -- Procedure to add a review for a product
 CREATE OR REPLACE PROCEDURE Add_Review(
     p_ReviewerEmail IN VARCHAR2,
@@ -22,13 +25,15 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: Product not found.');
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-END;
+END Add_Review;
+/
 
-**Buy_Or_Beware Procedure**
+
 
 CREATE OR REPLACE PROCEDURE Buy_Or_Beware(
     p_X IN NUMBER
 ) AS
+    v_counter NUMBER := 0;
 BEGIN
     -- List top-rated products
     DBMS_OUTPUT.PUT_LINE('Top rated products:');
@@ -39,12 +44,17 @@ BEGIN
         GROUP BY p.Product_ID, p.Product_Name
         ORDER BY AverageStars DESC
     ) LOOP
-        EXIT WHEN ROWNUM > p_X;
+        v_counter := v_counter + 1;
+        EXIT WHEN v_counter > p_X;
+
         DBMS_OUTPUT.PUT_LINE('Average Stars: ' || top_product.AverageStars);
         DBMS_OUTPUT.PUT_LINE('Product ID: ' || top_product.Product_ID);
         DBMS_OUTPUT.PUT_LINE('Product Name: ' || top_product.Product_Name);
         DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || top_product.StandardDeviation);
     END LOOP;
+
+    -- Reset counter
+    v_counter := 0;
 
     -- List products to beware
     DBMS_OUTPUT.PUT_LINE('Buyer Beware: Stay Away from:');
@@ -55,7 +65,9 @@ BEGIN
         GROUP BY p.Product_ID, p.Product_Name
         ORDER BY AverageStars ASC
     ) LOOP
-        EXIT WHEN ROWNUM > p_X;
+        v_counter := v_counter + 1;
+        EXIT WHEN v_counter > p_X;
+
         DBMS_OUTPUT.PUT_LINE('Average Stars: ' || worst_product.AverageStars);
         DBMS_OUTPUT.PUT_LINE('Product ID: ' || worst_product.Product_ID);
         DBMS_OUTPUT.PUT_LINE('Product Name: ' || worst_product.Product_Name);
@@ -65,6 +77,8 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+/
+
 
 
 **Recommend_To_Customer Procedure**
