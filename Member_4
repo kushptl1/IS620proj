@@ -66,6 +66,7 @@ END;
 CREATE OR REPLACE PROCEDURE Thrifty_Customer(
     p_X IN NUMBER
 ) AS
+    counter NUMBER := 0;
 BEGIN
     FOR thrifty_customer IN (
         SELECT c.F_Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
@@ -74,7 +75,9 @@ BEGIN
         GROUP BY c.F_Name
         ORDER BY TotalAmountSpent DESC
     ) LOOP
-        IF ROWNUM <= p_X THEN
+        counter := counter + 1;
+
+        IF counter <= p_X THEN
             DBMS_OUTPUT.PUT_LINE('Thrifty Customer: ' || thrifty_customer.CustomerName);
             DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || thrifty_customer.TotalAmountSpent);
         ELSE
@@ -85,4 +88,5 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+
 
