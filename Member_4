@@ -37,26 +37,6 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
--- Procedure to report the best customers
-CREATE OR REPLACE PROCEDURE Report_Best_Customers(
-    p_DollarAmount IN NUMBER
-) AS
-BEGIN
-    FOR customer_info IN (
-        SELECT c.Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
-        FROM Invoices i
-        JOIN Customers c ON i.CustomerID = c.CustomerID
-        GROUP BY c.Name
-        HAVING SUM(i.Amount) > p_DollarAmount
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || customer_info.CustomerName);
-        DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || customer_info.TotalAmountSpent);
-    END LOOP;
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-END;
-
 -- Procedure to calculate payments to credit card companies
 CREATE OR REPLACE PROCEDURE Payments_to_CC AS
 BEGIN
