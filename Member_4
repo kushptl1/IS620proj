@@ -45,15 +45,15 @@ BEGIN
     FOR payment_info IN (
         SELECT cc.CreditCardType, SUM(i.Amount) * (
             CASE
-                WHEN cc.CreditCardType = 'VISA' THEN 0.03
-                WHEN cc.CreditCardType = 'MC' THEN 0.03
-                WHEN cc.CreditCardType = 'AMEX' THEN 0.05
-                WHEN cc.CreditCardType = 'Discover' THEN 0.02
+                WHEN cc.Card_Type = 'VISA' THEN 0.03
+                WHEN cc.Card_Type = 'MC' THEN 0.03
+                WHEN cc.Card_Type = 'AMEX' THEN 0.05
+                WHEN cc.Card_Type = 'Discover' THEN 0.02
             END
         ) AS PaymentAmount
         FROM Invoices i
-        JOIN CreditCards cc ON i.CreditCardNumber = cc.CreditCardNumber
-        GROUP BY cc.CreditCardType
+        JOIN Credit_Cards cc ON i.CreditCardNumber = cc.Card_Number
+        GROUP BY cc.Card_Type
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Payment to ' || payment_info.CreditCardType || ': ' || payment_info.PaymentAmount);
     END LOOP;
@@ -68,11 +68,11 @@ CREATE OR REPLACE PROCEDURE Thrifty_Customer(
 ) AS
 BEGIN
     FOR thrifty_customer IN (
-        SELECT c.Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
+        SELECT c.F_Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
         FROM Invoices i
-        JOIN Customers c ON i.CustomerID = c.CustomerID
-        GROUP BY c.Name
-        ORDER BY TotalAmountSpent ASC
+        JOIN Customers c ON i.Customer_ID = c.Customer_ID
+        GROUP BY c.F_Name
+        ORDER BY TotalAmountSpent DESC
     ) LOOP
         IF ROWNUM <= p_X THEN
             DBMS_OUTPUT.PUT_LINE('Thrifty Customer: ' || thrifty_customer.CustomerName);
