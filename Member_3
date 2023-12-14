@@ -77,14 +77,15 @@ END;
 CREATE OR REPLACE PROCEDURE Report_Orders_by_State(
     p_State IN VARCHAR2
 ) AS
+    v_StateTotal NUMBER; -- Declare the variable for StateTotal
 BEGIN
     FOR state_info IN (
-        SELECT c.Name AS CustomerName, c.Email, COUNT(o.OrderID) AS TotalOrders, SUM(o.Quantity * p.UnitPrice) AS TotalAmount
+        SELECT c.f_Name AS CustomerName, c.Email, COUNT(o.Order_ID) AS TotalOrders, SUM(o.Quantity * p.UnitPrice) AS TotalAmount
         FROM Orders o
-        JOIN Customers c ON o.CustomerID = c.CustomerID
-        JOIN Products p ON o.ProductID = p.ProductID
+        JOIN Customers c ON o.Customer_ID = c.Customer_ID
+        JOIN Products p ON o.Product_ID = p.Product_ID
         WHERE c.State = p_State
-        GROUP BY c.Name, c.Email
+        GROUP BY c.f_Name, c.Email
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Customer Name: ' || state_info.CustomerName);
         DBMS_OUTPUT.PUT_LINE('Customer Email: ' || state_info.Email);
@@ -92,12 +93,12 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || state_info.TotalAmount);
     END LOOP;
 
-    -- Add a line showing the grand total amount spent in that state
-    SELECT SUM(o.Quantity * p.UnitPrice) AS StateTotal
+    -- Calculate and display the grand total amount spent in that state
+    SELECT SUM(o.Quantity * p.UnitPrice)
     INTO v_StateTotal
     FROM Orders o
-    JOIN Customers c ON o.CustomerID = c.CustomerID
-    JOIN Products p ON o.ProductID = p.ProductID
+    JOIN Customers c ON o.Customer_ID = c.Customer_ID
+    JOIN Products p ON o.Product_ID = p.Product_ID
     WHERE c.State = p_State;
 
     DBMS_OUTPUT.PUT_LINE('Grand Total Amount Spent in ' || p_State || ': ' || v_StateTotal);
@@ -105,6 +106,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+
 
 
 -- Create a trigger to automatically show low inventory products
