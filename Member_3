@@ -48,24 +48,29 @@ END;
 
 -- Procedure to show all orders in the online marketplace
 CREATE OR REPLACE PROCEDURE Show_Orders AS
+    v_GrandTotal NUMBER; -- Declare the variable for GrandTotal
 BEGIN
     FOR order_info IN (
-        SELECT c.Name AS CustomerName, p.ProductName, o.Quantity, (o.Quantity * p.UnitPrice) AS AmountCharged
+        SELECT c.f_Name,c.l_name, p.Product_Name, o.Quantity, (o.Quantity * p.UnitPrice) AS AmountCharged
         FROM Orders o
-        JOIN Customers c ON o.CustomerID = c.CustomerID
-        JOIN Products p ON o.ProductID = p.ProductID
+        JOIN Customers c ON o.Customer_ID = c.Customer_ID
+        JOIN Products p ON o.Product_ID = p.Product_ID
     ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || order_info.CustomerName);
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || order_info.ProductName);
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || order_info.f_Name);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || order_info.Product_Name);
         DBMS_OUTPUT.PUT_LINE('Quantity Ordered: ' || order_info.Quantity);
         DBMS_OUTPUT.PUT_LINE('Amount Charged: ' || order_info.AmountCharged);
     END LOOP;
 
-    -- Add a line showing the grand total of all orders placed
-    SELECT SUM(o.Quantity * p.UnitPrice) AS GrandTotal
+    -- Calculate the grand total of all orders placed
+    SELECT SUM(o.Quantity * p.UnitPrice)
     INTO v_GrandTotal
     FROM Orders o
-    JOIN Products p ON o.ProductID = p.ProductID;
+    JOIN Products p ON o.Product_ID = p.Product_ID;
+
+    -- Display the grand total
+    DBMS_OUTPUT.PUT_LINE('Grand Total of All Orders: ' || v_GrandTotal);
+END;
 
 
 -- Procedure to report orders by state
