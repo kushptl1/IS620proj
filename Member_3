@@ -1,31 +1,41 @@
+-- Drop the sequence Order_Seq
+DROP SEQUENCE Order_id_Seq;
+
+-- Create the sequence Order_Seq
+CREATE SEQUENCE Order_id_Seq START WITH 1 INCREMENT BY 1;
+
+
 -- Procedure to place an order
+-- Run the Invoice_Customer procedure from member 4 
+
 CREATE OR REPLACE PROCEDURE Place_Order(
-    p_CustomerEmail IN VARCHAR2,
-    p_ProductName IN VARCHAR2,
+    p_Email IN VARCHAR2,
+    p_Product_Name IN VARCHAR2,
     p_Quantity IN NUMBER,
     p_CreditCardNumber IN VARCHAR2
 ) AS
-    v_CustomerID NUMBER;
-    v_ProductID NUMBER;
+    v_Customer_ID NUMBER;
+    v_Product_ID NUMBER;
+    v_UnitPrice NUMBER;
 BEGIN
     -- Find the customer's ID using their email
-    SELECT CustomerID INTO v_CustomerID
+    SELECT Customer_ID INTO v_Customer_ID
     FROM Customers
-    WHERE Email = p_CustomerEmail;
+    WHERE Email = p_Email;
 
     -- Find the product's ID using the product name
-    SELECT ProductID INTO v_ProductID
+    SELECT Product_ID, UnitPrice INTO v_Product_ID, v_UnitPrice
     FROM Products
-    WHERE ProductName = p_ProductName;
+    WHERE Product_Name = p_Product_Name;
 
     -- Insert the order information
-    INSERT INTO Orders(OrderID, CustomerID, ProductID, Quantity, OrderDate)
-    VALUES (OrderID_SEQ.NEXTVAL, v_CustomerID, v_ProductID, p_Quantity, SYSDATE);
+    INSERT INTO Orders(Order_ID, Customer_ID, Product_ID, Quantity, Order_Date)
+    VALUES (Order_ID_SEQ.NEXTVAL, v_Customer_ID, v_Product_ID, p_Quantity, SYSDATE);
     COMMIT;
 
     -- Call Update_Inventory and Invoice_Customer procedures here
-    Update_Inventory(p_ProductName, p_Quantity);
-    Invoice_Customer(OrderID_SEQ.CURRVAL, v_CustomerID, p_CreditCardNumber, p_Quantity * (SELECT UnitPrice FROM Products WHERE ProductName = p_ProductName));
+    Update_Inventory(p_Product_Name, p_Quantity);
+    Invoice_Customer(Order_ID_SEQ.CURRVAL, v_Customer_ID, p_CreditCardNumber, p_Quantity * v_UnitPrice);
     
     DBMS_OUTPUT.PUT_LINE('Order placed successfully');
 EXCEPTION
