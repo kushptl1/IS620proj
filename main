@@ -1,0 +1,796 @@
+Set Serveroutput on;
+
+DROP TABLE Recommendation;
+DROP TABLE Reviews;
+DROP TABLE Invoices;
+DROP TABLE Orders;
+DROP TABLE Products;
+DROP TABLE Product_Category;
+DROP TABLE Credit_Cards;
+DROP TABLE Customers;
+
+CREATE TABLE Customers (
+  Customer_ID INT PRIMARY KEY,
+  F_Name VARCHAR(50),
+  L_Name VARCHAR(50),
+  email VARCHAR(100),
+  City VARCHAR(50),
+  State VARCHAR(50),
+  Zip INT
+);
+
+CREATE TABLE Credit_Cards (
+  Card_number INT PRIMARY KEY, 
+  Customer_ID INT,
+  Card_type VARCHAR(10),
+  Expiration_year INT,
+  Expiration_month INT,
+  FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
+);
+
+CREATE TABLE Product_Category(
+    ProductCategory_ID NUMBER PRIMARY KEY,
+    ProductCategory_Name VARCHAR(30),
+    ProductCategory_Desc VARCHAR(100)
+    );
+
+CREATE TABLE Products (
+    Product_ID NUMBER,
+    ProductCategory_ID NUMBER,
+    Product_Name VARCHAR(30),
+    Avail_Quant NUMBER,
+    Unitprice NUMBER,
+    primary key (Product_id),
+    foreign key (ProductCategory_ID) references Product_Category(ProductCategory_ID)
+);
+
+CREATE TABLE Orders (
+    Order_ID number ,
+    Customer_ID number,
+    Product_ID number,
+    Quantity number,
+    Order_Date date,
+    primary key (Order_ID),
+    foreign key (Customer_ID) references Customers(Customer_ID),
+    foreign key (Product_ID) references Products(Product_ID)
+);
+
+CREATE TABLE Invoices (
+    Invoice_ID NUMBER PRIMARY KEY,
+    Order_ID NUMBER REFERENCES Orders(Order_ID),
+    Customer_ID NUMBER REFERENCES Customers(Customer_ID),
+    CreditCardNumber VARCHAR2(20),
+    Amount NUMBER
+);
+
+CREATE TABLE Reviews (
+    Review_ID NUMBER PRIMARY KEY,
+    Product_ID NUMBER REFERENCES Products(Product_ID),
+    ReviewerEmail VARCHAR2(255),
+    StarsGiven NUMBER(1, 0),
+    ReviewText CLOB
+);
+
+CREATE TABLE Recommendation (
+    Recommendation_ID NUMBER PRIMARY KEY,
+    Customer_ID NUMBER REFERENCES Customers(Customer_ID),
+    RecommendedProduct_ID NUMBER REFERENCES Products(Product_ID),
+    RecommendationDate DATE
+);
+
+desc Customers;
+desc Credit_Cards;
+desc Product_Category;
+desc Products;
+desc Orders;
+desc Invoices;
+desc Reviews;
+desc Recommendation;
+
+-- Member 1
+--Creating sequence to auto increment Customer Id
+drop sequence customer_id_seq;
+CREATE SEQUENCE customer_id_seq START WITH 1;
+--Adding Customers into the table
+create or replace procedure Add_Customer(cust in INT ,
+  fnam in VARCHAR,
+  lnam in VARCHAR,
+  mail in VARCHAR,
+  cit in VARCHAR,
+  stat in VARCHAR,
+  zipp in VARCHAR) as
+x customers%rowtype;
+begin
+x.customer_ID:=cust;
+x.f_name:=fnam;
+x.l_name:=lnam;
+x.email:=mail;
+x.city:=cit;
+x.state:=stat;
+x.zip:=zipp;
+INSERT INTO CUSTOMERS VALUES  x;
+dbms_output.put_line('ADDING CUSTOMER '||x.f_name||' '||x.l_name);
+END;
+
+--creating a function to find Customer Id when name is given
+CREATE OR REPLACE FUNCTION Fcustomer_id(p_f_name IN Customers.f_name%TYPE,p_l_name IN Customers.l_name%TYPE)
+RETURN NUMBER
+IS
+    cid Customers.customer_id%TYPE;
+BEGIN
+      select customer_id into cid
+      from customers
+      where f_name = p_f_name and l_name=p_l_name;
+      RETURN cid;
+EXCEPTION
+    when no_data_found then
+	 dbms_output.put_line('no such customers');
+	 return -1;
+	when too_many_rows then
+	 dbms_output.put_line('more than one customer with the name, return the first one');
+	 return cid;
+END;
+
+--Implementing procedure to add credit card details for finding further details when details of customer including credit card are needed when a state name is given
+create or replace procedure Add_CreditCard(cardno in int,CustoID in INT,cardty in VARCHAR,expyear in int,expmonth in int)as
+y Credit_Cards%rowtype;
+begin
+y.card_number:=cardno;
+y.customer_id:=CustoID;
+y.card_type:=cardty;
+y.expiration_year:=expyear;
+y.expiration_month:=expmonth;
+INSERT INTO Credit_Cards VALUES y;
+dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
+END;
+
+--Procedure to find Customer details when state name is given
+create or replace procedure Show_all_customers_in_state(
+  sta in VARCHAR) as
+cursor c1 is select f_name,l_name,email,card_number,card_type
+from customers,credit_cards
+where customers.customer_id = credit_cards.customer_id and customers.state=sta;
+begin
+dbms_output.put_line('Customers in '||sta);
+for i in c1
+Loop
+ dbms_output.put_line(i.f_name||'   '||i.l_name||' | | '||i.email||' | | ' ||i.card_number||' | | '||i.card_type);
+end loop;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No customers found in ' || sta);
+END;
+/
+--creating a procedure to find the customer details whose credit card is going to expire before 2 months of given date
+create or replace Procedure Report_Cards_Expire(dat in date)as
+BEGIN
+  FOR s IN (
+    SELECT c.l_name, c.f_name, cc.card_number, cc.card_type, cc.expiration_year, cc.expiration_month
+    FROM Customers c
+    JOIN Credit_Cards cc ON c.customer_id = cc.customer_id
+   WHERE (cc.expiration_year=EXTRACT(YEAR FROM dat) and EXTRACT(YEAR FROM dat)= EXTRACT(YEAR FROM dat-interval '2' month) AND 
+       cc.expiration_month >= EXTRACT(MONTH FROM dat-interval '2' month)and cc.expiration_month <= EXTRACT(MONTH FROM dat))
+or (EXTRACT(YEAR FROM dat) > EXTRACT(YEAR FROM dat-interval '2' month) and cc.expiration_month >= EXTRACT(MONTH FROM dat-interval '2' month))
+    ORDER BY c.l_name, c.f_name
+)
+  LOOP
+DBMS_OUTPUT.PUT_LINE(
+      s.l_name || ', ' || s.f_name || ', ' || s.card_number || ', ' ||
+      s.card_type || ', ' || s.expiration_year || ', ' || s.expiration_month
+    );
+  END LOOP;
+exception
+	when no_data_found then
+	dbms_output.put_line('no data is found');
+
+END;
+
+-- Member 2
+DROP SEQUENCE Category_Seq;
+DROP SEQUENCE Product_Seq;
+DROP SEQUENCE Update_Seq;
+DROP SEQUENCE Report_Seq;
+
+-- Create the sequence Category_Seq
+CREATE SEQUENCE Category_Seq START WITH 1 INCREMENT BY 1;
+-- Create the sequence Product_Seq
+CREATE SEQUENCE Product_Seq START WITH 1 INCREMENT BY 1;
+-- Create the sequence Update_Seq
+CREATE SEQUENCE Update_Seq START WITH 1 INCREMENT BY 1;
+-- Create the sequence Report_Seq
+CREATE SEQUENCE Report_Seq START WITH 1 INCREMENT BY 1;
+
+-- Procedure to add a new product category
+CREATE OR REPLACE PROCEDURE Add_Category(
+    p_ProductCategory_Name IN VARCHAR2,
+    p_ProductCategory_Desc IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO Product_Category(ProductCategory_ID, ProductCategory_Name, ProductCategory_Desc)
+    VALUES (Category_Seq.NEXTVAL, p_ProductCategory_Name, p_ProductCategory_Desc);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Product category added successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to add a new product
+CREATE OR REPLACE PROCEDURE Add_Product(
+    p_Product_Name IN VARCHAR2,
+    p_Avail_Quant IN NUMBER,
+    p_UnitPrice IN NUMBER,
+    p_ProductCategory_Name IN VARCHAR2
+) AS
+    v_ProductCategory_ID NUMBER;
+BEGIN
+    -- Find the category ID using the category name
+    SELECT ProductCategory_ID INTO v_ProductCategory_ID
+    FROM Product_Category
+    WHERE ProductCategory_Name = p_ProductCategory_Name;
+
+    -- Insert the product information
+    INSERT INTO Products(Product_ID, Product_Name, Avail_Quant, Unitprice, ProductCategory_ID)
+    VALUES (Product_Seq.NEXTVAL, p_Product_Name, p_Avail_Quant, p_UnitPrice, v_ProductCategory_ID);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Product added successfully');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Category not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to update product inventory after an order
+CREATE OR REPLACE PROCEDURE Update_Inventory(
+    p_ProductName IN VARCHAR2,
+    p_Quantity IN NUMBER
+) AS
+BEGIN
+    UPDATE Products
+    SET Avail_Quant = Avail_Quant - p_Quantity
+    WHERE Product_Name = p_ProductName;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Inventory updated successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+--member 3
+
+DROP SEQUENCE Category_id_Seq;
+
+-- Create the sequence Order_Seq
+CREATE SEQUENCE Order_id_Seq START WITH 1 INCREMENT BY 1;
+
+
+-- Procedure to place an order
+-- Run the Invoice_Customer procedure from member 4 
+
+CREATE OR REPLACE PROCEDURE Place_Order(
+    p_Email IN VARCHAR2,
+    p_Product_Name IN VARCHAR2,
+    p_Quantity IN NUMBER,
+    p_CreditCardNumber IN VARCHAR2
+) AS
+    v_Customer_ID NUMBER;
+    v_Product_ID NUMBER;
+    v_UnitPrice NUMBER;
+BEGIN
+    -- Find the customer's ID using their email
+    SELECT Customer_ID INTO v_Customer_ID
+    FROM Customers
+    WHERE Email = p_Email;
+
+    -- Find the product's ID using the product name
+    SELECT Product_ID, UnitPrice INTO v_Product_ID, v_UnitPrice
+    FROM Products
+    WHERE Product_Name = p_Product_Name;
+
+    -- Insert the order information
+    INSERT INTO Orders(Order_ID, Customer_ID, Product_ID, Quantity, Order_Date)
+    VALUES (Order_ID_SEQ.NEXTVAL, v_Customer_ID, v_Product_ID, p_Quantity, SYSDATE);
+    COMMIT;
+
+    -- Call Update_Inventory and Invoice_Customer procedures here
+    Update_Inventory(p_Product_Name, p_Quantity);
+    Invoice_Customer(Order_ID_SEQ.CURRVAL, v_Customer_ID, p_CreditCardNumber, p_Quantity * v_UnitPrice);
+    
+    DBMS_OUTPUT.PUT_LINE('Order placed successfully');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Customer or product not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+
+-- Procedure to show all orders in the online marketplace
+CREATE OR REPLACE PROCEDURE Show_Orders AS
+    v_GrandTotal NUMBER; -- Declare the variable for GrandTotal
+BEGIN
+    FOR order_info IN (
+        SELECT c.f_Name,c.l_name, p.Product_Name, o.Quantity, (o.Quantity * p.UnitPrice) AS AmountCharged
+        FROM Orders o
+        JOIN Customers c ON o.Customer_ID = c.Customer_ID
+        JOIN Products p ON o.Product_ID = p.Product_ID
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || order_info.f_Name);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || order_info.Product_Name);
+        DBMS_OUTPUT.PUT_LINE('Quantity Ordered: ' || order_info.Quantity);
+        DBMS_OUTPUT.PUT_LINE('Amount Charged: ' || order_info.AmountCharged);
+    END LOOP;
+
+    -- Calculate the grand total of all orders placed
+    SELECT SUM(o.Quantity * p.UnitPrice)
+    INTO v_GrandTotal
+    FROM Orders o
+    JOIN Products p ON o.Product_ID = p.Product_ID;
+
+    -- Display the grand total
+    DBMS_OUTPUT.PUT_LINE('Grand Total of All Orders: ' || v_GrandTotal);
+END;
+
+-- Procedure to report orders by state
+CREATE OR REPLACE PROCEDURE Report_Orders_by_State(
+    p_State IN VARCHAR2
+) AS
+    v_StateTotal NUMBER; -- Declare the variable for StateTotal
+BEGIN
+    FOR state_info IN (
+        SELECT c.f_Name AS CustomerName, c.Email, COUNT(o.Order_ID) AS TotalOrders, SUM(o.Quantity * p.UnitPrice) AS TotalAmount
+        FROM Orders o
+        JOIN Customers c ON o.Customer_ID = c.Customer_ID
+        JOIN Products p ON o.Product_ID = p.Product_ID
+        WHERE c.State = p_State
+        GROUP BY c.f_Name, c.Email
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || state_info.CustomerName);
+        DBMS_OUTPUT.PUT_LINE('Customer Email: ' || state_info.Email);
+        DBMS_OUTPUT.PUT_LINE('Total Orders Placed: ' || state_info.TotalOrders);
+        DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || state_info.TotalAmount);
+    END LOOP;
+
+    -- Calculate and display the grand total amount spent in that state
+    SELECT SUM(o.Quantity * p.UnitPrice)
+    INTO v_StateTotal
+    FROM Orders o
+    JOIN Customers c ON o.Customer_ID = c.Customer_ID
+    JOIN Products p ON o.Product_ID = p.Product_ID
+    WHERE c.State = p_State;
+
+    DBMS_OUTPUT.PUT_LINE('Grand Total Amount Spent in ' || p_State || ': ' || v_StateTotal);
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+
+-- Create a stored procedure to get the product name
+CREATE OR REPLACE PROCEDURE Get_Product_Name(
+    p_Product_ID IN NUMBER,
+    p_Product_Name OUT VARCHAR2
+) AS
+BEGIN
+    SELECT Product_Name INTO p_Product_Name
+    FROM Products
+    WHERE Product_ID = p_Product_ID;
+END;
+
+
+-- Create the trigger
+CREATE OR REPLACE TRIGGER Low_Inventory_Trigger
+BEFORE INSERT ON Orders
+FOR EACH ROW
+DECLARE
+    v_Avail_Quant NUMBER;
+    v_Product_Name VARCHAR2(100); -- Adjust the size based on your actual column size
+BEGIN
+    -- Get the product name
+    Get_Product_Name(:new.Product_ID, v_Product_Name);
+
+    -- Get the available quantity
+    SELECT Avail_Quant INTO v_Avail_Quant
+    FROM Products
+    WHERE Product_ID = :new.Product_ID;
+
+    -- Check for low inventory
+    IF v_Avail_Quant < 50 THEN
+        DBMS_OUTPUT.PUT_LINE('Low Inventory Alert: Product ' || :new.Product_ID || ' (' || v_Product_Name || ') is below 50 units.');
+    END IF;
+END;
+
+-- Procedure to restock a specific product
+CREATE OR REPLACE PROCEDURE Restock_Product(
+    p_Product_Name IN VARCHAR2,
+    p_QuantityToAdd IN NUMBER
+) AS
+BEGIN
+    -- Update the product's available quantity
+    UPDATE Products
+    SET Avail_Quant = Avail_Quant + p_QuantityToAdd
+    WHERE Product_Name = p_Product_Name; -- Corrected the parameter name here
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Product restocked successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+
+
+-- Member 4
+
+CREATE sequence InvoiceID_SEQ start with 1;
+
+-- Procedure to create an invoice for a customer
+CREATE OR REPLACE PROCEDURE Invoice_Customer(
+    p_Order_ID IN NUMBER,
+    p_Customer_ID IN NUMBER,
+    p_CreditCardNumber IN VARCHAR2,
+    p_Amount IN NUMBER
+) AS
+BEGIN
+    -- Insert the invoice information
+    INSERT INTO Invoices(Invoice_ID, Order_ID, Customer_ID, CreditCardNumber, Amount)
+    VALUES (InvoiceID_SEQ.NEXTVAL, p_Order_ID, p_Customer_ID, p_CreditCardNumber, p_Amount);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Invoice created successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to calculate payments to credit card companies
+CREATE OR REPLACE PROCEDURE Payments_to_CC AS
+BEGIN
+    FOR payment_info IN (
+        SELECT cc.Card_Type, SUM(i.Amount) * (
+            CASE
+                WHEN cc.Card_Type = 'VISA' THEN 0.03
+                WHEN cc.Card_Type = 'MC' THEN 0.03
+                WHEN cc.Card_Type = 'AMEX' THEN 0.05
+                WHEN cc.Card_Type = 'Discover' THEN 0.02
+            END
+        ) AS PaymentAmount
+        FROM Invoices i
+        JOIN Credit_Cards cc ON i.CreditCardNumber = cc.Card_Number
+        GROUP BY cc.Card_Type
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Payment to ' || payment_info.Card_Type || ': ' || payment_info.PaymentAmount);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to identify thrifty customers
+CREATE OR REPLACE PROCEDURE Thrifty_Customer(
+    p_X IN NUMBER
+) AS
+    counter NUMBER := 0;
+BEGIN
+    FOR thrifty_customer IN (
+        SELECT c.F_Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
+        FROM Invoices i
+        JOIN Customers c ON i.Customer_ID = c.Customer_ID
+        GROUP BY c.F_Name
+        ORDER BY TotalAmountSpent DESC
+    ) LOOP
+        counter := counter + 1;
+
+        IF counter <= p_X THEN
+            DBMS_OUTPUT.PUT_LINE('Thrifty Customer: ' || thrifty_customer.CustomerName);
+            DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || thrifty_customer.TotalAmountSpent);
+        ELSE
+            EXIT;
+        END IF;
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Member 5 
+
+-- Create the sequence for Review_ID
+CREATE SEQUENCE ReviewID_SEQ START WITH 1;
+
+-- Procedure to add a review for a product
+CREATE OR REPLACE PROCEDURE Add_Review(
+    p_ReviewerEmail IN VARCHAR2,
+    p_StarsGiven IN NUMBER,
+    p_ProductName IN VARCHAR2,
+    p_ReviewText IN CLOB
+) AS
+    v_ProductID NUMBER;
+BEGIN
+    -- Find the product's ID using the product name
+    SELECT Product_ID INTO v_ProductID
+    FROM Products
+    WHERE Product_Name = p_ProductName;
+
+    -- Insert the review information
+    INSERT INTO Reviews(Review_ID, Product_ID, ReviewerEmail, StarsGiven, ReviewText)
+    VALUES (ReviewID_SEQ.NEXTVAL, v_ProductID, p_ReviewerEmail, p_StarsGiven, p_ReviewText);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Review added successfully');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Product not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END Add_Review;
+
+CREATE OR REPLACE PROCEDURE Buy_Or_Beware(
+    p_X IN NUMBER
+) AS
+    v_counter NUMBER := 0;
+BEGIN
+    -- List top-rated products
+    DBMS_OUTPUT.PUT_LINE('Top rated products:');
+    FOR top_product IN (
+        SELECT AVG(r.StarsGiven) AS AverageStars, p.Product_ID, p.Product_Name, STDDEV(r.StarsGiven) AS StandardDeviation
+        FROM Reviews r
+        JOIN Products p ON r.Product_ID = p.Product_ID
+        GROUP BY p.Product_ID, p.Product_Name
+        ORDER BY AverageStars DESC
+    ) LOOP
+        v_counter := v_counter + 1;
+        EXIT WHEN v_counter > p_X;
+
+        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || top_product.AverageStars);
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || top_product.Product_ID);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || top_product.Product_Name);
+        DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || top_product.StandardDeviation);
+    END LOOP;
+
+    -- Reset counter
+    v_counter := 0;
+
+    -- List products to beware
+    DBMS_OUTPUT.PUT_LINE('Buyer Beware: Stay Away from:');
+    FOR worst_product IN (
+        SELECT AVG(r.StarsGiven) AS AverageStars, p.Product_ID, p.Product_Name, STDDEV(r.StarsGiven) AS StandardDeviation
+        FROM Reviews r
+        JOIN Products p ON r.Product_ID = p.Product_ID
+        GROUP BY p.Product_ID, p.Product_Name
+        ORDER BY AverageStars ASC
+    ) LOOP
+        v_counter := v_counter + 1;
+        EXIT WHEN v_counter > p_X;
+
+        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || worst_product.AverageStars);
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || worst_product.Product_ID);
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || worst_product.Product_Name);
+        DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || worst_product.StandardDeviation);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Create a sequence
+CREATE SEQUENCE Recommendation_ID_SEQ START WITH 1 INCREMENT BY 1;
+
+-- Procedure to calculate a recommendation for a customer
+CREATE OR REPLACE PROCEDURE Recommend_To_Customer(
+    p_CustomerID IN NUMBER
+) AS
+    v_Customer_ID NUMBER;
+    v_F_Name VARCHAR2(50);  -- Adjust the size as per your actual column size
+    v_L_Name VARCHAR2(50);  -- Adjust the size as per your actual column size
+    v_BoughtProduct_ID NUMBER;
+    v_RecommendedProduct_ID NUMBER;
+
+    -- Cursor declaration
+    CURSOR cursorCustomers IS
+        SELECT DISTINCT c.Customer_ID, c.F_Name, c.L_Name, r.RecommendedProduct_ID AS BoughtProductID
+        FROM Customers c
+        JOIN Orders o ON c.Customer_ID = o.Customer_ID
+        LEFT JOIN Recommendation r ON c.Customer_ID = r.Customer_ID;
+
+BEGIN
+    OPEN cursorCustomers;
+
+    FETCH cursorCustomers INTO v_Customer_ID, v_F_Name, v_L_Name, v_BoughtProduct_ID;
+
+    WHILE cursorCustomers%FOUND LOOP
+        -- Cursor declaration for recommended products
+        FOR recommended_product IN (
+            SELECT r.Product_ID
+            FROM Reviews r
+            WHERE r.Product_ID NOT IN (
+                SELECT o.Product_ID
+                FROM Orders o
+                WHERE o.Customer_ID = v_Customer_ID
+            )
+            AND r.Product_ID IN (
+                SELECT p.Product_ID
+                FROM Products p
+                WHERE p.ProductCategory_ID IN (
+                    SELECT p.ProductCategory_ID
+                    FROM Products p
+                    WHERE p.Product_ID = v_BoughtProduct_ID
+                )
+            )
+            AND ROWNUM = 1
+        ) LOOP
+            v_RecommendedProduct_ID := recommended_product.Product_ID;
+
+            -- Insert the recommendation
+            INSERT INTO Recommendation(Recommendation_ID, Customer_ID, RecommendedProduct_ID, RecommendationDate)
+            VALUES (Recommendation_ID_SEQ.NEXTVAL, v_Customer_ID, v_RecommendedProduct_ID, SYSDATE);
+
+            DBMS_OUTPUT.PUT_LINE('Recommendation added successfully');
+        END LOOP;
+
+        FETCH cursorCustomers INTO v_Customer_ID, v_F_Name, v_L_Name, v_BoughtProduct_ID;
+    END LOOP;
+
+    CLOSE cursorCustomers;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+
+
+-- Procedure to list all customer recommendations
+CREATE OR REPLACE PROCEDURE List_Recommendations AS
+BEGIN
+    FOR recommendation_info IN (
+        SELECT c.F_Name AS CustomerName, p.Product_Name AS RecommendedProduct, AVG(r.StarsGiven) AS AverageStars
+        FROM Recommendation rec
+        JOIN Customers c ON rec.Customer_ID = c.Customer_ID
+        JOIN Products p ON rec.RecommendedProduct_ID = p.Product_ID
+        JOIN Reviews r ON rec.RecommendedProduct_ID = r.Product_ID
+        GROUP BY c.F_Name, p.Product_Name
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || recommendation_info.CustomerName);
+        DBMS_OUTPUT.PUT_LINE('Recommended Product: ' || recommendation_info.RecommendedProduct);
+        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || recommendation_info.AverageStars);
+    END LOOP;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+--Member 6
+
+-- Procedure to print all income to the online store by state
+CREATE OR REPLACE PROCEDURE Income_By_State AS
+BEGIN
+    -- Loop through each state and calculate total income
+    FOR state_income IN (
+        -- Query to calculate total income by state
+        SELECT c.State, SUM(i.Amount) AS TotalIncome
+        FROM Invoices i
+        JOIN Customers c ON i.Customer_ID = c.Customer_ID
+        GROUP BY c.State
+    ) LOOP
+        -- Print state and total income for each state
+        DBMS_OUTPUT.PUT_LINE('State: ' || state_income.State);
+        DBMS_OUTPUT.PUT_LINE('Total Income: ' || state_income.TotalIncome);
+        DBMS_OUTPUT.PUT_LINE('---------------------------');
+    END LOOP;
+    -- Handle NO_DATA_FOUND exception if there are no records
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            DBMS_OUTPUT.PUT_LINE('No data found for income by state.');
+        -- Handle other specific exceptions
+        WHEN OTHERS THEN
+            -- Log the error to an error log table or take appropriate action
+            DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to list the top X best selling products
+CREATE OR REPLACE PROCEDURE Best_Selling_Products(
+    p_X IN NUMBER
+) AS
+v_Counter NUMBER := 0; -- Counter variable to track the number of iterations
+BEGIN
+    -- Loop through the best-selling products
+    FOR best_selling_product IN (
+        -- Query to calculate the top X best selling products
+        SELECT p.Product_Name, pc.ProductCategory_Name, SUM(o.Quantity) AS TotalUnitsSold, SUM(i.Amount) AS TotalAmount
+        FROM Products p
+        JOIN Orders o ON p.Product_ID = o.Product_ID
+        JOIN Product_Category pc ON p.ProductCategory_ID = pc.ProductCategory_ID
+        JOIN Invoices i ON o.Order_ID = i.Order_ID
+        GROUP BY p.Product_Name, pc.ProductCategory_Name
+        ORDER BY TotalUnitsSold DESC
+    ) LOOP
+        -- Exit the loop when the desired number of products is reached
+        v_Counter := v_Counter + 1;
+        EXIT WHEN v_Counter > p_X;
+        -- Print information about each best-selling product
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || best_selling_product.Product_Name);
+        DBMS_OUTPUT.PUT_LINE('Category: ' || best_selling_product.ProductCategory_Name);
+        DBMS_OUTPUT.PUT_LINE('Total Units Sold: ' || best_selling_product.TotalUnitsSold);
+        DBMS_OUTPUT.PUT_LINE('Total Amount Collected: ' || best_selling_product.TotalAmount);
+        DBMS_OUTPUT.PUT_LINE('---------------------------');
+    END LOOP;
+EXCEPTION
+    -- Handle the case when the input parameter is not valid
+    WHEN VALUE_ERROR THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Invalid input parameter.');
+    -- Handle the case when there are no records found
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found for best-selling products.');
+    -- Handle other specific exceptions (add more as needed)
+    WHEN OTHERS THEN
+        -- Log the error to an error log table or take appropriate action
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to identify customers who followed recommended products
+CREATE OR REPLACE PROCEDURE Recommendations_Follow_Up AS
+BEGIN
+    -- Cursor to iterate through recommendation information
+    FOR recommendation_info IN (
+        SELECT
+            c.F_Name,
+            p.Product_Name AS Recommended_Product,
+            CASE
+                -- Check if the product was ordered by the customer
+                WHEN o.Order_ID IS NOT NULL THEN 'Recommendation followed'
+                ELSE 'Recommendation not followed yet'
+            END AS Follow_Up_Status
+        FROM
+            Recommendation rec
+            JOIN Customers c ON rec.Customer_ID = c.Customer_ID
+            JOIN Products p ON rec.RecommendedProduct_ID = p.Product_ID
+            LEFT JOIN Orders o ON c.Customer_ID = o.Customer_ID AND rec.RecommendedProduct_ID = o.Product_ID
+    ) LOOP
+        -- Print customer information and follow-up status
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || recommendation_info.F_Name);
+        DBMS_OUTPUT.PUT_LINE('Recommended Product: ' || recommendation_info.Recommended_Product);
+        DBMS_OUTPUT.PUT_LINE('Follow-Up Status: ' || recommendation_info.Follow_Up_Status);
+        DBMS_OUTPUT.PUT_LINE('---------------------------');
+    END LOOP;
+
+EXCEPTION
+    -- Handle specific exception when no data is found
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+    -- Handle other exceptions
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+
+-- Procedure to identify products ordered within a time interval
+CREATE OR REPLACE PROCEDURE Prod_Order_By_Time_Intvl(
+    p_StartDate IN DATE,
+    p_EndDate IN DATE
+) AS
+BEGIN
+    -- Loop through each product_info
+    FOR product_info IN (
+        SELECT p.Product_Name, 
+               SUM(o.Quantity) AS TotalUnitsOrdered, 
+               COUNT(DISTINCT o.Customer_ID) AS TotalCustomers
+        FROM Products p
+        JOIN Orders o ON p.Product_ID = o.Product_ID
+        WHERE o.Order_Date >= p_StartDate AND o.Order_Date < p_EndDate + 1
+        GROUP BY p.Product_Name
+    ) LOOP
+        -- Print product information
+        DBMS_OUTPUT.PUT_LINE('Product Name: ' || product_info.Product_Name);
+        DBMS_OUTPUT.PUT_LINE('Total Units Ordered: ' || product_info.TotalUnitsOrdered);
+        DBMS_OUTPUT.PUT_LINE('Total Customers: ' || product_info.TotalCustomers);
+        DBMS_OUTPUT.PUT_LINE('---------------------------');
+    END LOOP;
+    
+EXCEPTION
+    -- Handle specific exception when no data is found
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+    -- Handle specific exception when too many rows are found
+    WHEN TOO_MANY_ROWS THEN
+        DBMS_OUTPUT.PUT_LINE('Too many rows found.');
+    -- Handle other exceptions
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
