@@ -1,18 +1,12 @@
 
--- Drop sequences with correct names
-DROP SEQUENCE Category_Seq;
-DROP SEQUENCE Product_Seq;
-DROP SEQUENCE Update_Seq;
-DROP SEQUENCE Report_Seq;
+-- Drop sequences
+DROP SEQUENCE Category_id_Seq;
+DROP SEQUENCE Product_id_Seq;
 
 -- Create the sequence Category_Seq
-CREATE SEQUENCE Category_Seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE Category_id_Seq START WITH 1 INCREMENT BY 1;
 -- Create the sequence Product_Seq
-CREATE SEQUENCE Product_Seq START WITH 1 INCREMENT BY 1;
--- Create the sequence Update_Seq
-CREATE SEQUENCE Update_Seq START WITH 1 INCREMENT BY 1;
--- Create the sequence Report_Seq
-CREATE SEQUENCE Report_Seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE Product_id_Seq START WITH 1 INCREMENT BY 1;
 
 -- Procedure to add a new product category
 CREATE OR REPLACE PROCEDURE Add_Category(
