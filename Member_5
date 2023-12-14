@@ -1,105 +1,124 @@
+
+--Drop the sequence
+DROP SEQUENCE ReviewID_SEQ;
+
 -- Create the sequence for Review_ID
-CREATE SEQUENCE ReviewID_SEQ START WITH 1;
+CREATE SEQUENCE ReviewID_SEQ START WITH 1 INCREMENT BY 1;
 
--- Procedure to add a review for a product
+-- Procedure: Add_Review
 CREATE OR REPLACE PROCEDURE Add_Review(
-    p_ReviewerEmail IN VARCHAR2,
-    p_StarsGiven IN NUMBER,
-    p_ProductName IN VARCHAR2,
-    p_ReviewText IN CLOB
-) AS
-    v_ProductID NUMBER;
+    p_reviewer_email IN VARCHAR2,
+    p_stars_given IN NUMBER,
+    p_product_name IN VARCHAR2,
+    p_review_text IN VARCHAR2
+) IS
+    v_product_id Products.Product_ID%TYPE;
+    v_review_id Reviews.Review_ID%TYPE;
 BEGIN
-    -- Find the product's ID using the product name
-    SELECT Product_ID INTO v_ProductID
-    FROM Products
-    WHERE Product_Name = p_ProductName;
+    -- Find the product ID using the helper function
+    v_product_id := FIND_PRODUCT_ID(p_product_name);
 
-    -- Insert the review information
-    INSERT INTO Reviews(Review_ID, Product_ID, ReviewerEmail, StarsGiven, ReviewText)
-    VALUES (ReviewID_SEQ.NEXTVAL, v_ProductID, p_ReviewerEmail, p_StarsGiven, p_ReviewText);
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('Review added successfully');
+    -- Insert the review into the Reviews table
+    INSERT INTO Reviews (Review_ID, Product_ID, ReviewerEmail, StarsGiven, ReviewText)
+    VALUES (ReviewID_SEQ.NEXTVAL, v_product_id, p_reviewer_email, p_stars_given, p_review_text);
+
+    DBMS_OUTPUT.PUT_LINE('Review added successfully.');
+
 EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('Error: Product not found.');
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-END Add_Review;
-/
+        DBMS_OUTPUT.PUT_LINE('Error adding review: ' || SQLERRM);
+END;
 
+-- Procedure: Buy_Or_Beware
+CREATE OR REPLACE PROCEDURE Buy_Or_Beware(p_top_x IN NUMBER) IS
+    CURSOR best_products_cur IS
+        SELECT AVG(r.StarsGiven) AS avg_stars,
+               p.Product_ID,
+               p.Product_Name,
+               STDDEV(r.StarsGiven) AS stars_deviation
+        FROM Products p
+        JOIN Reviews r ON p.Product_ID = r.Product_ID
+        GROUP BY p.Product_ID, p.Product_Name
+        ORDER BY avg_stars DESC;
 
+    CURSOR worst_products_cur IS
+        SELECT AVG(r.StarsGiven) AS avg_stars,
+               p.Product_ID,
+               p.Product_Name,
+               STDDEV(r.StarsGiven) AS stars_deviation
+        FROM Products p
+        JOIN Reviews r ON p.Product_ID = r.Product_ID
+        GROUP BY p.Product_ID, p.Product_Name
+        ORDER BY avg_stars ASC;
 
-CREATE OR REPLACE PROCEDURE Buy_Or_Beware(
-    p_X IN NUMBER
-) AS
     v_counter NUMBER := 0;
 BEGIN
-    -- List top-rated products
+    -- Print top-rated products
     DBMS_OUTPUT.PUT_LINE('Top rated products:');
-    FOR top_product IN (
-        SELECT AVG(r.StarsGiven) AS AverageStars, p.Product_ID, p.Product_Name, STDDEV(r.StarsGiven) AS StandardDeviation
-        FROM Reviews r
-        JOIN Products p ON r.Product_ID = p.Product_ID
-        GROUP BY p.Product_ID, p.Product_Name
-        ORDER BY AverageStars DESC
-    ) LOOP
+    FOR best_product IN best_products_cur LOOP
+        EXIT WHEN v_counter >= p_top_x;
+        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || best_product.avg_stars ||
+                             ' | Product ID: ' || best_product.Product_ID ||
+                             ' | Product Name: ' || best_product.Product_Name ||
+                             ' | Stars Deviation: ' || best_product.stars_deviation);
         v_counter := v_counter + 1;
-        EXIT WHEN v_counter > p_X;
-
-        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || top_product.AverageStars);
-        DBMS_OUTPUT.PUT_LINE('Product ID: ' || top_product.Product_ID);
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || top_product.Product_Name);
-        DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || top_product.StandardDeviation);
     END LOOP;
 
-    -- Reset counter
-    v_counter := 0;
+    v_counter := 0; -- Reset counter for worst-rated products
 
-    -- List products to beware
-    DBMS_OUTPUT.PUT_LINE('Buyer Beware: Stay Away from:');
-    FOR worst_product IN (
-        SELECT AVG(r.StarsGiven) AS AverageStars, p.Product_ID, p.Product_Name, STDDEV(r.StarsGiven) AS StandardDeviation
-        FROM Reviews r
-        JOIN Products p ON r.Product_ID = p.Product_ID
-        GROUP BY p.Product_ID, p.Product_Name
-        ORDER BY AverageStars ASC
-    ) LOOP
+    -- Print worst-rated products
+    DBMS_OUTPUT.PUT_LINE('Buyer Beware: Stay Away from...');
+    FOR worst_product IN worst_products_cur LOOP
+        EXIT WHEN v_counter >= p_top_x;
+        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || worst_product.avg_stars ||
+                             ' | Product ID: ' || worst_product.Product_ID ||
+                             ' | Product Name: ' || worst_product.Product_Name ||
+                             ' | Stars Deviation: ' || worst_product.stars_deviation);
         v_counter := v_counter + 1;
-        EXIT WHEN v_counter > p_X;
-
-        DBMS_OUTPUT.PUT_LINE('Average Stars: ' || worst_product.AverageStars);
-        DBMS_OUTPUT.PUT_LINE('Product ID: ' || worst_product.Product_ID);
-        DBMS_OUTPUT.PUT_LINE('Product Name: ' || worst_product.Product_Name);
-        DBMS_OUTPUT.PUT_LINE('Standard Deviation: ' || worst_product.StandardDeviation);
     END LOOP;
+
 EXCEPTION
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('Error in Buy_Or_Beware: ' || SQLERRM);
 END;
-/
 
+--Drop the sequence
+DROP SEQUENCE Recommendation_ID_SEQ;
 
-//not working ASWIN
-**Recommend_To_Customer Procedure**
+-- Create a sequence
+CREATE SEQUENCE Recommendation_ID_SEQ START WITH 1 INCREMENT BY 1;
+
 -- Procedure to calculate a recommendation for a customer
 CREATE OR REPLACE PROCEDURE Recommend_To_Customer(
     p_CustomerID IN NUMBER
 ) AS
-BEGIN
-    FOR customer IN (
-        SELECT DISTINCT c.Customer_ID, c.F_Name, c.L_Name, r.Product_ID AS BoughtProductID
+    v_Customer_ID NUMBER;
+    v_F_Name VARCHAR2(50);  -- Adjust the size as per your actual column size
+    v_L_Name VARCHAR2(50);  -- Adjust the size as per your actual column size
+    v_BoughtProduct_ID NUMBER;
+    v_RecommendedProduct_ID NUMBER;
+
+    -- Cursor declaration
+    CURSOR cursorCustomers IS
+        SELECT DISTINCT c.Customer_ID, c.F_Name, c.L_Name, r.RecommendedProduct_ID AS BoughtProductID
         FROM Customers c
         JOIN Orders o ON c.Customer_ID = o.Customer_ID
-        LEFT JOIN Recommendations r ON c.Customer_ID = r.Customer_ID
-    ) LOOP
+        LEFT JOIN Recommendation r ON c.Customer_ID = r.Customer_ID;
+
+BEGIN
+    OPEN cursorCustomers;
+
+    FETCH cursorCustomers INTO v_Customer_ID, v_F_Name, v_L_Name, v_BoughtProduct_ID;
+
+    WHILE cursorCustomers%FOUND LOOP
+        -- Cursor declaration for recommended products
         FOR recommended_product IN (
-            SELECT r.Product_ID AS RecommendedProduct_ID
+            SELECT r.Product_ID
             FROM Reviews r
             WHERE r.Product_ID NOT IN (
                 SELECT o.Product_ID
                 FROM Orders o
-                WHERE o.Customer_ID = customer.Customer_ID
+                WHERE o.Customer_ID = v_Customer_ID
             )
             AND r.Product_ID IN (
                 SELECT p.Product_ID
@@ -107,23 +126,28 @@ BEGIN
                 WHERE p.ProductCategory_ID IN (
                     SELECT p.ProductCategory_ID
                     FROM Products p
-                    WHERE p.Product_ID = customer.BoughtProductID
+                    WHERE p.Product_ID = v_BoughtProduct_ID
                 )
             )
             AND ROWNUM = 1
         ) LOOP
+            v_RecommendedProduct_ID := recommended_product.Product_ID;
+
             -- Insert the recommendation
-            INSERT INTO Recommendations(Recommendation_ID, Customer_ID, RecommendedProduct_ID, RecommendationDate)
-            VALUES (Recommendation_ID_SEQ.NEXTVAL, customer.Customer_ID, recommended_product.RecommendedProduct_ID, SYSDATE);
-            COMMIT;
+            INSERT INTO Recommendation(Recommendation_ID, Customer_ID, RecommendedProduct_ID, RecommendationDate)
+            VALUES (Recommendation_ID_SEQ.NEXTVAL, v_Customer_ID, v_RecommendedProduct_ID, SYSDATE);
+
             DBMS_OUTPUT.PUT_LINE('Recommendation added successfully');
         END LOOP;
+
+        FETCH cursorCustomers INTO v_Customer_ID, v_F_Name, v_L_Name, v_BoughtProduct_ID;
     END LOOP;
+
+    CLOSE cursorCustomers;
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
-
 
 -- Procedure to list all customer recommendations
 CREATE OR REPLACE PROCEDURE List_Recommendations AS
@@ -144,6 +168,3 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
-/
-
-
