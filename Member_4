@@ -1,92 +1,176 @@
+-- Helper Function: FIND_ORDER_ID
+CREATE OR REPLACE FUNCTION FIND_ORDER_ID(p_customer_email VARCHAR2, p_product_name VARCHAR2, p_quantity NUMBER)
+    RETURN NUMBER
+IS
+    v_customer_id   Customers.Customer_ID%TYPE;
+    v_product_id    Products.Product_ID%TYPE;
+    v_order_id      Orders.Order_ID%TYPE;
+BEGIN
+    -- Use FIND_CUSTOMER_ID, FIND_PRODUCT_ID functions as needed
+    v_customer_id := FIND_CUSTOMER_ID(p_customer_email);
+    v_product_id := FIND_PRODUCT_ID(p_product_name);
 
-CREATE sequence InvoiceID_SEQ start with 1;
+    -- Find Order ID based on customer, product, and quantity
+    SELECT Order_ID
+    INTO v_order_id
+    FROM Orders
+    WHERE Customer_ID = v_customer_id
+        AND Product_ID = v_product_id
+        AND Quantity = p_quantity;
 
--- Procedure to create an invoice for a customer
+    RETURN v_order_id;
+END;
+
+-- Helper Function: FIND_CREDIT_CARD_ID
+CREATE OR REPLACE FUNCTION FIND_CREDIT_CARD_ID(p_credit_card_number VARCHAR2)
+    RETURN INT
+IS
+    v_credit_card_id   Credit_Cards.Card_Number%TYPE; -- Assuming CreditCard_Number is unique
+BEGIN
+    -- Find Credit Card ID based on credit card number
+    SELECT Customer_ID
+    INTO v_credit_card_id
+    FROM Credit_Cards
+    WHERE Card_Number = p_credit_card_number;
+
+    RETURN v_credit_card_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Credit card not found.');
+        RETURN NULL;
+END;
+
+DROP SEQUENCE InvoiceID_SEQ
+
+CREATE SEQUENCE InvoiceID_SEQ START WITH 1 INCREMENT BY 1;
+
+-- Procedure: Invoice_Customer
 CREATE OR REPLACE PROCEDURE Invoice_Customer(
-    p_OrderID IN NUMBER,
-    p_CustomerID IN NUMBER,
-    p_CreditCardNumber IN VARCHAR2,
-    p_Amount IN NUMBER
-) AS
+    p_order_id IN Orders.Order_ID%TYPE,
+    p_customer_id IN Customers.Customer_ID%TYPE,
+    p_credit_card_number IN VARCHAR2,
+    p_amount IN NUMBER
+)
+IS
+    v_credit_card_id Credit_Cards.Card_Number%TYPE;
 BEGIN
-    -- Insert the invoice information
-    INSERT INTO Invoices(InvoiceID, OrderID, CustomerID, CreditCardNumber, Amount)
-    VALUES (InvoiceID_SEQ.NEXTVAL, p_OrderID, p_CustomerID, p_CreditCardNumber, p_Amount);
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('Invoice created successfully');
+    -- Find Credit Card ID based on credit card number using helper function
+    v_credit_card_id := FIND_CREDIT_CARD_ID(p_credit_card_number);
+
+    -- Insert record into Invoice table
+    INSERT INTO Invoices (Invoice_ID, Order_ID, Customer_ID, CreditCardNumber, Amount)
+    VALUES (InvoiceID_Seq.NEXTVAL, p_order_id, p_customer_id, v_credit_card_id, p_amount);
+
+    DBMS_OUTPUT.PUT_LINE('Invoice record added successfully.');
 EXCEPTION
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('Error adding invoice record: ' || SQLERRM);
 END;
 
--- Procedure to report the best customers
+-- Procedure: Report_Best_Customers
 CREATE OR REPLACE PROCEDURE Report_Best_Customers(
-    p_DollarAmount IN NUMBER
-) AS
+    p_amount_threshold IN NUMBER
+)
+IS
 BEGIN
-    FOR customer_info IN (
-        SELECT c.F_Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
-        FROM Invoices i
-        JOIN Customers c ON i.Customer_ID = c.Customer_ID
-        GROUP BY c.F_Name
-        HAVING SUM(i.Amount) > p_DollarAmount
+    -- Display report header
+    DBMS_OUTPUT.PUT_LINE('Report of Customers Who Spent More Than $' || TO_CHAR(p_amount_threshold));
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+    
+    -- Query and display customers who spent more than the specified amount
+    FOR cust IN (
+        SELECT c.Customer_ID, c.F_Name, SUM(i.Amount) AS total_amount
+        FROM Customers c
+        JOIN Invoices i ON c.Customer_ID = i.Customer_ID
+        GROUP BY c.Customer_ID, c.F_Name
+        HAVING SUM(i.Amount) > p_amount_threshold
+        ORDER BY total_amount DESC
     ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || customer_info.CustomerName);
-        DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || customer_info.TotalAmountSpent);
+        DBMS_OUTPUT.PUT_LINE('Customer ID: ' || cust.Customer_ID || ', Name: ' || cust.F_Name || ', Total Amount Spent: $' || TO_CHAR(cust.total_amount));
     END LOOP;
 EXCEPTION
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-END;
+        DBMS_OUTPUT.PUT_LINE('Error generating best customers report: ' || SQLERRM);
+END Report_Best_Customers;
 
--- Procedure to calculate payments to credit card companies
-CREATE OR REPLACE PROCEDURE Payments_to_CC AS
+-- Procedure: Payments_to_CC
+CREATE OR REPLACE PROCEDURE Payments_to_CC IS
+    -- Declare variables
+    v_total_visa_fee NUMBER;
+    v_total_mc_fee NUMBER;
+    v_total_amex_fee NUMBER;
+    v_total_discover_fee NUMBER;
+
 BEGIN
-    FOR payment_info IN (
-        SELECT cc.CreditCardType, SUM(i.Amount) * (
-            CASE
-                WHEN cc.Card_Type = 'VISA' THEN 0.03
-                WHEN cc.Card_Type = 'MC' THEN 0.03
-                WHEN cc.Card_Type = 'AMEX' THEN 0.05
-                WHEN cc.Card_Type = 'Discover' THEN 0.02
-            END
-        ) AS PaymentAmount
-        FROM Invoices i
-        JOIN Credit_Cards cc ON i.CreditCardNumber = cc.Card_Number
-        GROUP BY cc.Card_Type
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Payment to ' || payment_info.CreditCardType || ': ' || payment_info.PaymentAmount);
+    -- Initialize variables
+    v_total_visa_fee := 0;
+    v_total_mc_fee := 0;
+    v_total_amex_fee := 0;
+    v_total_discover_fee := 0;
+
+    -- Display report header
+    DBMS_OUTPUT.PUT_LINE('Payments to Credit Card Companies');
+    DBMS_OUTPUT.PUT_LINE('----------------------------------');
+
+    -- Cursors for fetching payments by credit card type
+    FOR payment IN (SELECT c.Card_Type, SUM(i.Amount) AS total_amount
+                    FROM Credit_Cards c
+                    JOIN Invoices i ON c.Card_Number = i.CreditCardNumber
+                    GROUP BY c.Card_Type) LOOP
+
+        -- Calculate fees based on credit card type
+        CASE payment.Card_Type
+            WHEN 'VISA' THEN
+                v_total_visa_fee := payment.total_amount * 0.03;
+            WHEN 'MC' THEN
+                v_total_mc_fee := payment.total_amount * 0.03;
+            WHEN 'AMEX' THEN
+                v_total_amex_fee := payment.total_amount * 0.05;
+            WHEN 'DISCOVER' THEN
+                v_total_discover_fee := payment.total_amount * 0.02;
+        END CASE;
     END LOOP;
+
+    -- Display the calculated fees
+    DBMS_OUTPUT.PUT_LINE('VISA Fee: $' || TO_CHAR(v_total_visa_fee));
+    DBMS_OUTPUT.PUT_LINE('MC Fee: $' || TO_CHAR(v_total_mc_fee));
+    DBMS_OUTPUT.PUT_LINE('AMEX Fee: $' || TO_CHAR(v_total_amex_fee));
+    DBMS_OUTPUT.PUT_LINE('DISCOVER Fee: $' || TO_CHAR(v_total_discover_fee));
+
 EXCEPTION
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('Error calculating payments to credit card companies: ' || SQLERRM);
 END;
 
--- Procedure to identify thrifty customers
-CREATE OR REPLACE PROCEDURE Thrifty_Customer(
-    p_X IN NUMBER
-) AS
-    counter NUMBER := 0;
+-- Procedure: Thrifty_Customer
+CREATE OR REPLACE PROCEDURE Thrifty_Customer(p_num_customers IN NUMBER) IS
+    v_counter NUMBER := 0; -- Counter to limit the number of customers
 BEGIN
-    FOR thrifty_customer IN (
-        SELECT c.F_Name AS CustomerName, SUM(i.Amount) AS TotalAmountSpent
-        FROM Invoices i
-        JOIN Customers c ON i.Customer_ID = c.Customer_ID
-        GROUP BY c.F_Name
-        ORDER BY TotalAmountSpent DESC
-    ) LOOP
-        counter := counter + 1;
+    -- Display report header
+    DBMS_OUTPUT.PUT_LINE('Thrifty Customers');
+    DBMS_OUTPUT.PUT_LINE('------------------');
 
-        IF counter <= p_X THEN
-            DBMS_OUTPUT.PUT_LINE('Thrifty Customer: ' || thrifty_customer.CustomerName);
-            DBMS_OUTPUT.PUT_LINE('Total Amount Spent: ' || thrifty_customer.TotalAmountSpent);
-        ELSE
-            EXIT;
-        END IF;
+    -- Cursor to fetch customers sorted by amount spent in ascending order
+    FOR customer IN (SELECT c.Customer_ID, c.F_Name, c.L_Name, NVL(SUM(i.Amount), 0) AS total_amount
+                     FROM Customers c
+                     LEFT JOIN Invoices i ON c.Customer_ID = i.Customer_ID
+                     GROUP BY c.Customer_ID, c.F_Name
+                     ORDER BY total_amount DESC) LOOP
+
+        -- Display customer information
+        DBMS_OUTPUT.PUT_LINE('Customer ID: ' || customer.Customer_ID);
+        DBMS_OUTPUT.PUT_LINE('Customer Name: ' || customer.F_Name || customer.L_Name);
+        DBMS_OUTPUT.PUT_LINE('Total Amount Spent: $' || TO_CHAR(customer.total_amount));
+        DBMS_OUTPUT.PUT_LINE('------------------');
+
+        -- Increment the counter
+        v_counter := v_counter + 1;
+
+        -- Break the loop when the required number of customers is reached
+        EXIT WHEN v_counter = p_num_customers;
     END LOOP;
+
 EXCEPTION
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('Error identifying thrifty customers: ' || SQLERRM);
 END;
-
-
