@@ -1,0 +1,67 @@
+-- Insert sample data into Customers table
+INSERT INTO Customers VALUES(1, 'Nihant', 'Malempet', 'nihant@gmail.com', 'New York', 'NY', 10001);
+INSERT INTO Customers VALUES(2, 'Chaitanya', 'Shetty', 'chaitanya@gmail.com', 'Los Angeles', 'CA', 90001);
+INSERT INTO Customers VALUES(3, 'FNU', 'Ayesha', 'ayesha@gmail.com', 'Chicago', 'IL', 60601);
+INSERT INTO Customers VALUES(4, 'AshwinKumar', 'Jankiraman', 'ashwin@gmail.com', 'Baltimore', 'MD', 77001);
+INSERT INTO Customers VALUES(5, 'Kush', 'Patel', 'kush@gmail.com', 'San Francisco', 'CA', 94101);
+INSERT INTO Customers VALUES(6, 'Ashutosh', 'Latwala', 'ashu@gmail.com', 'New York', 'NY', 33101);
+
+-- Insert sample data into Credit_Cards table
+INSERT INTO Credit_Cards VALUES(1111222233334444, 1, 'VISA', 2025, 12);
+INSERT INTO Credit_Cards VALUES(2222333344445555, 2, 'MasterCard', 2024, 6);
+INSERT INTO Credit_Cards VALUES(3333444455556666, 3, 'Discover', 2023, 9);
+INSERT INTO Credit_Cards VALUES(4444555566667777, 4, 'AMEX', 2024, 8);
+INSERT INTO Credit_Cards VALUES(5555666677778888, 5, 'VISA', 2023, 7);
+INSERT INTO Credit_Cards VALUES(6666777788889999, 6, 'MasterCard', 2024, 5);
+
+-- Insert sample data into Product_Category table
+INSERT INTO Product_Category VALUES(1, 'Electronics', 'Electronic gadgets and devices');
+INSERT INTO Product_Category VALUES(2, 'Clothing', 'Fashion and apparel');
+INSERT INTO Product_Category VALUES(3, 'Home Appliances', 'Appliances for home use');
+INSERT INTO Product_Category VALUES(4, 'Books', 'Literary works in various genres');
+INSERT INTO Product_Category VALUES(5, 'Toys', 'Playthings for children');
+INSERT INTO Product_Category VALUES(6, 'Sports', 'Sports equipment and gear');
+
+-- Insert sample data into Products table
+INSERT INTO Products VALUES(101, 1, 'Smartphone', 100, 800);
+INSERT INTO Products VALUES(102, 1, 'Laptop', 50, 1200);
+INSERT INTO Products VALUES(103, 2, 'T-Shirt', 200, 20);
+INSERT INTO Products VALUES(104, 2, 'Jeans', 150, 50);
+INSERT INTO Products VALUES(105, 3, 'Refrigerator', 30, 1000);
+INSERT INTO Products VALUES(106, 3, 'Washing Machine', 25, 800);
+INSERT INTO Products VALUES(107, 4, 'Science Fiction Book', 120, 15);
+INSERT INTO Products VALUES(108, 4, 'Cookbook', 80, 10);
+INSERT INTO Products VALUES(109, 5, 'Action Figure', 300, 10);
+INSERT INTO Products VALUES(110, 5, 'Board Game', 100, 30);
+
+-- Insert sample data into Orders table
+INSERT INTO Orders VALUES(1001, 1, 101, 2, TO_DATE('2022-01-10', 'YYYY-MM-DD'));
+INSERT INTO Orders VALUES(1002, 2, 102, 1, TO_DATE('2022-01-15', 'YYYY-MM-DD'));
+INSERT INTO Orders VALUES(1003, 3, 103, 5, TO_DATE('2022-01-20', 'YYYY-MM-DD'));
+INSERT INTO Orders VALUES(1004, 4, 104, 3, TO_DATE('2022-01-25', 'YYYY-MM-DD'));
+INSERT INTO Orders VALUES(1005, 5, 105, 1, TO_DATE('2022-02-01', 'YYYY-MM-DD'));
+INSERT INTO Orders VALUES(1006, 6, 106, 2, TO_DATE('2022-02-05', 'YYYY-MM-DD'));
+
+-- Insert sample data into Invoices table
+INSERT INTO Invoices VALUES(2001, 1001, 1, '1111222233334444', 2400);
+INSERT INTO Invoices VALUES(2002, 1002, 2, '2222333344445555', 800);
+INSERT INTO Invoices VALUES(2003, 1003, 3, '3333444455556666', 1000);
+INSERT INTO Invoices VALUES(2004, 1004, 4, '4444555566667777', 150);
+INSERT INTO Invoices VALUES(2005, 1005, 5, '5555666677778888', 100);
+INSERT INTO Invoices VALUES(2006, 1006, 6, '6666777788889999', 1600);
+
+-- Insert sample data into Reviews table
+INSERT INTO Reviews VALUES(1, 101, 'ashu@gmail.com', 4, 'Great smartphone!');
+INSERT INTO Reviews VALUES(2, 102, 'kush@gmail.com', 5, 'Excellent laptop!');
+INSERT INTO Reviews VALUES(3, 103, 'ayesha@gmail.com', 3, 'Average T-shirt.');
+INSERT INTO Reviews VALUES(4, 104, 'ashwin@gmail.com', 5, 'Love these jeans!');
+INSERT INTO Reviews VALUES(5, 105, 'chaitanya@gmail.com', 4, 'Good refrigerator.');
+INSERT INTO Reviews VALUES(6, 106, 'nihant@gmail.com', 5, 'Fantastic washing machine!');
+
+-- Insert sample data into Recommendations table
+INSERT INTO Recommendation VALUES(1, 1, 102, TO_DATE('2022-01-20', 'YYYY-MM-DD'));
+INSERT INTO Recommendation VALUES(2, 2, 101, TO_DATE('2022-01-25', 'YYYY-MM-DD'));
+INSERT INTO Recommendation VALUES(3, 3, 104, TO_DATE('2022-02-05', 'YYYY-MM-DD'));
+INSERT INTO Recommendation VALUES(4, 4, 103, TO_DATE('2022-02-10', 'YYYY-MM-DD'));
+INSERT INTO Recommendation VALUES(5, 5, 106, TO_DATE('2022-02-15', 'YYYY-MM-DD'));
+INSERT INTO Recommendation VALUES(6, 6, 105, TO_DATE('2022-02-20', 'YYYY-MM-DD'));
