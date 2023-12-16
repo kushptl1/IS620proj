@@ -122,7 +122,7 @@ BEGIN
 END;
 
 -- Function to retrieve the Customer_ID based on first and last names
-CREATE OR REPLACE FUNCTION Fcustomer_id(
+CREATE OR REPLACE FUNCTION Find_Customer_ID(
   p_f_name IN Customers.F_Name%TYPE,
   p_l_name IN Customers.L_Name%TYPE
 ) RETURN NUMBER IS
