@@ -469,13 +469,13 @@ BEGIN
 
     -- Calculate Grand Total
     DECLARE
-        v_grand_total NUMBER;
+       v_grand_total NUMBER;
     BEGIN
-        SELECT SUM(Avail_Quant * UnitPrice)
-        INTO v_grand_total
-        FROM Products;
-
-        DBMS_OUTPUT.PUT_LINE('Grand Total Amount of All Orders: ' || v_grand_total);
+      SELECT SUM(O.Quantity * p.UnitPrice) -- Use Quantity from Orders table and UnitPrice from Products table
+      INTO v_grand_total
+      FROM Orders O
+      JOIN Products p ON O.ProductID = p.ProductID; -- Assuming there's a foreign key relationship between Orders and Products
+      DBMS_OUTPUT.PUT_LINE('Grand Total Amount of All Orders: ' || v_grand_total);
     END;
 EXCEPTION
     WHEN OTHERS THEN
