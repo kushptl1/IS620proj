@@ -354,6 +354,34 @@ EXCEPTION
         RETURN NULL; -- You can choose to handle this differently based on your requirements
 END;
 
+DROP SEQUENCE InvoiceID_SEQ
+
+CREATE SEQUENCE InvoiceID_SEQ START WITH 1 INCREMENT BY 1;
+
+-- Procedure: Invoice_Customer
+CREATE OR REPLACE PROCEDURE Invoice_Customer(
+    p_order_id IN Orders.Order_ID%TYPE,
+    p_customer_id IN Customers.Customer_ID%TYPE,
+    p_credit_card_number IN VARCHAR2,
+    p_amount IN NUMBER
+)
+IS
+    v_credit_card_id Credit_Cards.Card_Number%TYPE;
+BEGIN
+    -- Find Credit Card ID based on credit card number using helper function
+    v_credit_card_id := FIND_CREDIT_CARD_ID(p_credit_card_number);
+
+    -- Insert record into Invoice table
+    INSERT INTO Invoices (Invoice_ID, Order_ID, Customer_ID, CreditCardNumber, Amount)
+    VALUES (InvoiceID_Seq.NEXTVAL, p_order_id, p_customer_id, v_credit_card_id, p_amount);
+
+    DBMS_OUTPUT.PUT_LINE('Invoice record added successfully.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error adding invoice record: ' || SQLERRM);
+END;
+
+
 -- Drop the sequence Order_Seq
 DROP SEQUENCE Order_id_Seq;
 
@@ -558,33 +586,6 @@ EXCEPTION
     WHEN NO_DATA_FOUND THEN
         DBMS_OUTPUT.PUT_LINE('Credit card not found.');
         RETURN NULL;
-END;
-
-DROP SEQUENCE InvoiceID_SEQ
-
-CREATE SEQUENCE InvoiceID_SEQ START WITH 1 INCREMENT BY 1;
-
--- Procedure: Invoice_Customer
-CREATE OR REPLACE PROCEDURE Invoice_Customer(
-    p_order_id IN Orders.Order_ID%TYPE,
-    p_customer_id IN Customers.Customer_ID%TYPE,
-    p_credit_card_number IN VARCHAR2,
-    p_amount IN NUMBER
-)
-IS
-    v_credit_card_id Credit_Cards.Card_Number%TYPE;
-BEGIN
-    -- Find Credit Card ID based on credit card number using helper function
-    v_credit_card_id := FIND_CREDIT_CARD_ID(p_credit_card_number);
-
-    -- Insert record into Invoice table
-    INSERT INTO Invoices (Invoice_ID, Order_ID, Customer_ID, CreditCardNumber, Amount)
-    VALUES (InvoiceID_Seq.NEXTVAL, p_order_id, p_customer_id, v_credit_card_id, p_amount);
-
-    DBMS_OUTPUT.PUT_LINE('Invoice record added successfully.');
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('Error adding invoice record: ' || SQLERRM);
 END;
 
 -- Procedure: Report_Best_Customers
