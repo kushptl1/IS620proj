@@ -582,7 +582,7 @@ IS
 BEGIN
     -- Use FIND_CUSTOMER_ID, FIND_PRODUCT_ID functions as needed
     -- Assume p_customer_email contains both first and the last name seperated by a space 
-    v_customer_id := FIND_CUSTOMER_ID(SUBSTR(p_customer_email);
+    v_customer_id := FIND_CUSTOMER_ID(p_customer_email);
     v_product_id := FIND_PRODUCT_ID(p_product_name);
 
     -- Find Order ID based on customer, product, and quantity
