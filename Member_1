@@ -1,107 +1,191 @@
-drop sequence customer_id_seq;
+//--------------- IS620 Advanced Database Projects --------------------
+--------------- Group Project --------------------
+--------------- An Online Shopping DB System ---------------
+---------------Team Suicide Squad ---------------
+--------------- Nihanth Malempet(Member 1)---------------
+--------------- Chaitanya Shetty(Member 2) ---------------
+--------------- Ayesha(Member 3) -------------------
+--------------- Aswin kumar(Member 4) ---------------
+--------------- Kush Patel(Member 5) ---------------
+--------------- Ashutosh Latwala(Member 6) ---------------
 
-CREATE SEQUENCE customer_id_seq START WITH 1;
---Adding Customers into the table
-create or replace procedure Add_Customer(cust in INT ,
-  fnam in VARCHAR,
-  lnam in VARCHAR,
-  mail in VARCHAR,
-  cit in VARCHAR,
-  stat in VARCHAR,
-  zipp in VARCHAR) as
-x customers%rowtype;
-begin
-    x.customer_ID:=cust;
-    x.f_name:=fnam;
-    x.l_name:=lnam;
-    x.email:=mail;
-    x.city:=cit;
-    x.state:=stat;
-    x.zip:=zipp;
-    
-INSERT INTO CUSTOMERS VALUES  x;
-COMMIT;
-dbms_output.put_line('ADDING CUSTOMER '||x.f_name||' '||x.l_name);
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Handle exceptions
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
-END;
+-- Enable output to see DBMS_OUTPUT messages
+SET SERVEROUTPUT ON;
 
-------
-CREATE OR REPLACE FUNCTION FIND_CUSTOMER_ID(p_email IN VARCHAR2) RETURN NUMBER AS
-    v_customer_id NUMBER;
-BEGIN
-    -- Find the customer ID based on the email
-    SELECT customer_id INTO v_customer_id FROM Customers WHERE email = p_email;
-    RETURN v_customer_id;
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        -- Handle the case when no customer is found for the given email
-        RETURN NULL;
-    WHEN OTHERS THEN
-        -- Handle other exceptions
-        RETURN NULL;
-END;
+-- Drop existing tables if they exist
+DROP TABLE Credit_Cards;
+DROP TABLE Customers;
 
+-- Create Customers table
+CREATE TABLE Customers (
+  Customer_ID INT PRIMARY KEY,
+  F_Name VARCHAR(50),
+  L_Name VARCHAR(50),
+  Email VARCHAR(100),
+  City VARCHAR(50),
+  State VARCHAR(50),
+  Zip INT
+);
 
------
-CREATE OR REPLACE PROCEDURE Add_CreditCard(
-    p_email IN VARCHAR2,
-    p_credit_card_number IN VARCHAR2,
-    p_card_type IN VARCHAR2,
-    p_exp_year IN NUMBER,
-    p_exp_month IN NUMBER
+-- Create Credit_Cards table with a foreign key reference to Customers
+CREATE TABLE Credit_Cards (
+  Card_number INT PRIMARY KEY, 
+  Customer_ID INT,
+  Card_type VARCHAR(10),
+  Expiration_year INT,
+  Expiration_month INT,
+  FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
+);
+
+-- Display structure of Customers and Credit_Cards tables
+DESC Customers;
+DESC Credit_Cards;
+
+-- Drop existing sequence if it exists
+DROP SEQUENCE custom_id_seq;
+
+-- Create a sequence for generating Customer_ID values
+CREATE SEQUENCE custom_id_seq START WITH 1;
+
+-- Procedure to add a customer to the Customers table
+CREATE OR REPLACE PROCEDURE Add_Customer(
+  cust IN INT,
+  fnam IN VARCHAR,
+  lnam IN VARCHAR,
+  mail IN VARCHAR,
+  cit IN VARCHAR,
+  stat IN VARCHAR,
+  zipp IN VARCHAR
 ) AS
-    v_customer_id NUMBER;
+  x Customers%ROWTYPE;
 BEGIN
-    -- Find the customer ID using the helper function
-    v_customer_id := FIND_CUSTOMER_ID(p_email);
-
-    IF v_customer_id IS NOT NULL THEN
-        -- Insert the new credit card into the CreditCards table
-        INSERT INTO Credit_Cards(customer_id, card_number, card_type, expiration_year, expiration_month)
-        VALUES (v_customer_id, p_credit_card_number, p_card_type, p_exp_year, p_exp_month);
-
-        DBMS_OUTPUT.PUT_LINE('Credit card added successfully.');
-    ELSE
-        DBMS_OUTPUT.PUT_LINE('Customer not found for the given email.');
-    END IF;
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Handle exceptions
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+  -- Populate the record with input values
+  x.Customer_ID := cust;
+  x.F_Name := fnam;
+  x.L_Name := lnam;
+  x.Email := mail;
+  x.City := cit;
+  x.State := stat;
+  x.Zip := zipp;
+  
+  -- Insert the record into the Customers table
+  INSERT INTO CUSTOMERS VALUES x;
+  
+  -- Display a message indicating the customer has been added
+  DBMS_OUTPUT.PUT_LINE('ADDING CUSTOMER ' || x.F_Name || ' ' || x.L_Name);
 END;
 
------------
-CREATE OR REPLACE PROCEDURE Show_all_customers_in_state(p_state IN VARCHAR2) AS
+-- Function to retrieve the Customer_ID based on first and last names
+CREATE OR REPLACE FUNCTION Fcustomer_id(
+  p_f_name IN Customers.F_Name%TYPE,
+  p_l_name IN Customers.L_Name%TYPE
+) RETURN NUMBER IS
+  cid Customers.Customer_ID%TYPE;
 BEGIN
-    -- Display a list of all customers in the specified state
-    FOR cust IN (SELECT c.F_name, c.L_name, c.email, c.city, c.state, c.zip, cc.Card_number, cc.Card_type
-                 FROM Customers c
-                 JOIN Credit_Cards cc ON c.customer_id = cc.customer_id
-                 WHERE c.state = p_state) 
-    LOOP
-        DBMS_OUTPUT.PUT_LINE('Name: ' || cust.F_name ||  cust.L_name || ', Email: ' || cust.email ||
-                             ', City: ' || cust.city || ', State: ' || cust.state ||
-                             ', Zip: ' || cust.zip || ', Credit Card: ' || cust.card_number ||
-                             ', Card Type: ' || cust.card_type);
-    END LOOP;
+  -- Retrieve the Customer_ID based on first and last names
+  SELECT Customer_ID INTO cid
+  FROM Customers
+  WHERE F_Name = p_f_name AND L_Name = p_l_name;
+  
+  RETURN cid;
 EXCEPTION
-    WHEN OTHERS THEN
-        -- Handle exceptions
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+  WHEN NO_DATA_FOUND THEN
+    -- Handle case where no matching customer is found
+    DBMS_OUTPUT.PUT_LINE('No such customers');
+    RETURN -1;
+  WHEN TOO_MANY_ROWS THEN
+    -- Handle case where more than one customer is found (return the first one)
+    DBMS_OUTPUT.PUT_LINE('More than one customer with the name; returning the first one');
+    RETURN cid;
 END;
 
-------------
+-- Procedure to show all customers in a given state along with their credit card details
+CREATE OR REPLACE PROCEDURE Show_all_customers_in_state(
+  sta IN VARCHAR
+) AS
+  CURSOR c1 IS
+    SELECT F_Name, L_Name, Email, Card_number, Card_type
+    FROM Customers, Credit_Cards
+    WHERE Customers.Customer_ID = Credit_Cards.Customer_ID AND Customers.State = sta;
+BEGIN
+  -- Display customers and their credit card details for the specified state
+  DBMS_OUTPUT.PUT_LINE('Customers in ' || sta);
+  FOR i IN c1 LOOP
+    DBMS_OUTPUT.PUT_LINE(i.F_Name || ' ' || i.L_Name || ' | | ' || i.Email || ' | | ' || i.Card_number || ' | | ' || i.Card_type);
+  END LOOP;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    -- Handle case where no customers are found in the specified state
+    DBMS_OUTPUT.PUT_LINE('No customers found in ' || sta);
+END;
+
+-- Adding customers using the Add_Customer procedure
+BEGIN
+  Add_Customer(custom_id_seq.NEXTVAL, 'Nihanth', 'Malempet', 'nihanth@malempet.com', 'Baltimore', 'MD', '21250');
+  Add_Customer(custom_id_seq.NEXTVAL, 'Chaitanya', 'Shetty', 'chaitanya@shetty.com', 'Baltimore', 'MD', '21250');
+  Add_Customer(custom_id_seq.NEXTVAL, 'Aye', 'Sha', 'aye@sha.com', 'Baltimore', 'MD', '21250');
+  Add_Customer(custom_id_seq.NEXTVAL, 'Aswin', 'Kumar', 'aswin@kumar.org', 'Columbia', 'SC', '44250');
+  Add_Customer(custom_id_seq.NEXTVAL, 'Kush', 'Patel', 'kush@patel.com', 'New York', 'NY', '12345');
+  Add_Customer(custom_id_seq.NEXTVAL, 'Ashutosh', 'Latwala', 'ashutosh@Latwala.com', 'New York', 'NY', '12345');
+END;
+
+--Implementing procedure to add credit card details for finding further details when details of customer including credit card are needed when a state name is given
 create or replace procedure Add_CreditCard(cardno in int,CustoID in INT,cardty in VARCHAR,expyear in int,expmonth in int)as
 y Credit_Cards%rowtype;
 begin
-    y.card_number:=cardno;
-    y.customer_id:=CustoID;
-    y.card_type:=cardty;
-    y.expiration_year:=expyear;
-    y.expiration_month:=expmonth;
+y.Card_number := cardno;
+y.Customer_ID := CustoID;
+y.Card_type := cardty;
+y.Expiration_year := expyear;
+y.Expiration_month := expmonth;
 INSERT INTO Credit_Cards VALUES y;
 dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
+END;
+-- Adding credit card details for customers
+Begin
+ Add_CreditCard(12345,Fcustomer_id('Nihanth','Malempet'),'VISA',2024,10);
+ Add_CreditCard(12346,Fcustomer_id('Chaitanya','Shetty'),'VISA',2024,10);
+ Add_CreditCard(12347,Fcustomer_id('Ashutosh','Latwala'),'VISA',2024,09);
+ Add_CreditCard(34567,Fcustomer_id('Nihanth','Malempet'),'AMEX',2024,10);
+ Add_CreditCard(23456,Fcustomer_id('Aye','Sha'),'MC',2024,09);
+ Add_CreditCard(12348,Fcustomer_id('Aswin','Kumar'),'VISA',2025,10);
+ Add_CreditCard(45679,Fcustomer_id('Kush','Patel'),'Discover',2025,10);
+end;
+
+-- Execute procedure to show all customers in a specified state
+exec show_all_customers_in_state('SC');
+/
+
+-- Creating a procedure to report credit cards that will expire within the next 2 months from a given date
+CREATE OR REPLACE PROCEDURE Report_Cards_Expire(dat IN DATE) AS
+BEGIN
+  -- Cursor to retrieve customer and credit card details for expiring cards
+  FOR s IN (
+    SELECT c.l_name, c.f_name, cc.card_number, cc.card_type, cc.expiration_year, cc.expiration_month
+    FROM Customers c
+    JOIN Credit_Cards cc ON c.customer_id = cc.customer_id
+    -- Conditions to filter credit cards expiring within the next 2 months
+    WHERE (cc.expiration_year = EXTRACT(YEAR FROM dat) AND EXTRACT(YEAR FROM dat) = EXTRACT(YEAR FROM dat - interval '2' month) AND 
+           cc.expiration_month >= EXTRACT(MONTH FROM dat - interval '2' month) AND cc.expiration_month <= EXTRACT(MONTH FROM dat))
+           OR (EXTRACT(YEAR FROM dat) > EXTRACT(YEAR FROM dat - interval '2' month) AND cc.expiration_month >= EXTRACT(MONTH FROM dat - interval '2' month))
+    -- Ordering the result by last name and first name
+    ORDER BY c.l_name, c.f_name
+  )
+  LOOP
+    -- Displaying details of expiring credit cards
+    DBMS_OUTPUT.PUT_LINE(
+      s.l_name || ', ' || s.f_name || ', ' || s.card_number || ', ' ||
+      s.card_type || ', ' || s.expiration_year || ', ' || s.expiration_month
+    );
+  END LOOP;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    -- Handling case where no data is found
+    DBMS_OUTPUT.PUT_LINE('No expiring credit cards found.');
+END;
+
+-- Executing the Report_Cards_Expire procedure for a specific date
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('CARDS WHICH WILL EXPIRE IN THE NEXT 2 MONTHS');
+  Report_Cards_Expire(DATE '2024-10-30');
 END;
