@@ -123,25 +123,24 @@ END;
 
 -- Function to retrieve the Customer_ID based on first and last names
 CREATE OR REPLACE FUNCTION Find_Customer_ID(
-  p_f_name IN Customers.F_Name%TYPE,
-  p_l_name IN Customers.L_Name%TYPE
+  p_email IN Customers.Email%TYPE
 ) RETURN NUMBER IS
   cid Customers.Customer_ID%TYPE;
 BEGIN
-  -- Retrieve the Customer_ID based on first and last names
+  -- Retrieve the Customer_ID based on email
   SELECT Customer_ID INTO cid
   FROM Customers
-  WHERE F_Name = p_f_name AND L_Name = p_l_name;
-  
+  WHERE Email = p_email;
+
   RETURN cid;
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
     -- Handle case where no matching customer is found
-    DBMS_OUTPUT.PUT_LINE('No such customers');
+    DBMS_OUTPUT.PUT_LINE('No such customer');
     RETURN -1;
   WHEN TOO_MANY_ROWS THEN
     -- Handle case where more than one customer is found (return the first one)
-    DBMS_OUTPUT.PUT_LINE('More than one customer with the name; returning the first one');
+    DBMS_OUTPUT.PUT_LINE('More than one customer with the email; returning the first one');
     RETURN cid;
 END;
 
@@ -170,7 +169,7 @@ BEGIN
   Add_Customer(custom_id_seq.NEXTVAL, 'Nihanth', 'Malempet', 'nihanth@malempet.com', 'Baltimore', 'MD', '21250');
   Add_Customer(custom_id_seq.NEXTVAL, 'Chaitanya', 'Shetty', 'chaitanya@shetty.com', 'Baltimore', 'MD', '21250');
   Add_Customer(custom_id_seq.NEXTVAL, 'Aye', 'Sha', 'aye@sha.com', 'Baltimore', 'MD', '21250');
-  Add_Customer(custom_id_seq.NEXTVAL, 'Aswin', 'Kumar', 'aswin@kumar.org', 'Columbia', 'SC', '44250');
+  Add_Customer(custom_id_seq.NEXTVAL, 'Aswin', 'Kumar', 'aswin@kumar.com', 'Columbia', 'SC', '44250');
   Add_Customer(custom_id_seq.NEXTVAL, 'Kush', 'Patel', 'kush@patel.com', 'New York', 'NY', '12345');
   Add_Customer(custom_id_seq.NEXTVAL, 'Ashutosh', 'Latwala', 'ashutosh@Latwala.com', 'New York', 'NY', '12345');
 END;
@@ -190,13 +189,13 @@ END;
 
 -- Adding credit card details for customers
 Begin
- Add_CreditCard(12345,Find_customer_ID('Nihanth','Malempet'),'VISA',2024,10);
- Add_CreditCard(12346,Find_customer_ID('Chaitanya','Shetty'),'VISA',2024,10);
- Add_CreditCard(12347,Find_customer_ID('Ashutosh','Latwala'),'VISA',2024,09);
- Add_CreditCard(34567,Find_customer_ID('Nihanth','Malempet'),'AMEX',2024,10);
- Add_CreditCard(23456,Find_customer_ID('Aye','Sha'),'MC',2024,09);
- Add_CreditCard(12348,Find_customer_ID('Aswin','Kumar'),'VISA',2025,10);
- Add_CreditCard(45679,Find_customer_ID('Kush','Patel'),'Discover',2025,10);
+ Add_CreditCard(12345,Find_customer_ID('nihanth@malempet.com'),'VISA',2024,10);
+ Add_CreditCard(12346,Find_customer_ID('chaitanya@shetty.com'),'VISA',2024,10);
+ Add_CreditCard(12347,Find_customer_ID('ashutosh@Latwala.com'),'VISA',2024,09);
+ Add_CreditCard(34567,Find_customer_ID('nihanth@malempet.com'),'AMEX',2024,10);
+ Add_CreditCard(23456,Find_customer_ID('aye@sha.com'),'MC',2024,09);
+ Add_CreditCard(12348,Find_customer_ID('aswin@kumar.com'),'VISA',2025,10);
+ Add_CreditCard(45679,Find_customer_ID('kush@patel.com'),'Discover',2025,10);
 end;
 
 -- Execute procedure to show all customers in a specified state
@@ -426,7 +425,7 @@ BEGIN
     v_l_name := SUBSTR(p_customer_email, INSTR(p_customer_email, '@') + 1);
 
     -- Find customer ID using helper function
-    v_customer_id := Fcustomer_id(v_f_name, v_l_name);
+    v_customer_id := Find_customer_id(p_customer_email);
 
     -- Find product ID using helper function
     v_product_id := FIND_PRODUCT_ID(p_product_name);
@@ -583,8 +582,7 @@ IS
 BEGIN
     -- Use FIND_CUSTOMER_ID, FIND_PRODUCT_ID functions as needed
     -- Assume p_customer_email contains both first and the last name seperated by a space 
-    v_customer_id := FIND_CUSTOMER_ID(SUBSTR(p_customer_email, 1, INSTR(p_customer_email, ' ') - 1),
-                                       SUBSTR(p_customer_email, INSTR(p_customer_email, ' ') + 1));
+    v_customer_id := FIND_CUSTOMER_ID(SUBSTR(p_customer_email);
     v_product_id := FIND_PRODUCT_ID(p_product_name);
 
     -- Find Order ID based on customer, product, and quantity
