@@ -377,7 +377,11 @@ EXCEPTION
         RETURN NULL;
 END;
 
--- Procedure: Invoice_Customer
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #1 (Member_4): Invoice_Customer :- This procedure enters a record in the Invoice table. 
+Inputs: Order ID, Customer ID, Credit Card #, Amount. Have used the helper function (FIND_CREDIT_CARD_ID) to 
+find the Credit Card ID for the given credit card number. */
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE Invoice_Customer(
     p_order_id IN Orders.Order_ID%TYPE,
     p_customer_id IN Customers.Customer_ID%TYPE,
@@ -387,7 +391,7 @@ CREATE OR REPLACE PROCEDURE Invoice_Customer(
 IS
     v_credit_card_id Credit_Cards.Card_Number%TYPE;
 BEGIN
-    -- Find Credit Card ID based on credit card number using helper function
+    -- Finding the Credit Card ID based on credit card number using helper function FIND_CREDIT_CARD_ID Which takes in the Creedit_card_number as the input
     v_credit_card_id := FIND_CREDIT_CARD_ID(p_credit_card_number);
 
     -- Insert record into Invoice table
@@ -404,7 +408,7 @@ END;
 -- Drop the sequence Order_Seq
 DROP SEQUENCE Order_id_Seq;
 
--- Create the sequence Order_Seq
+-- Create the sequence Order_Seq which automatically creates the order ID for new orders that are being placed by the customers.
 CREATE SEQUENCE Order_id_Seq START WITH 1 INCREMENT BY 1;
 
 CREATE OR REPLACE PROCEDURE Place_Order(
@@ -596,7 +600,11 @@ BEGIN
     RETURN v_order_id;
 END;
 
--- Procedure: Report_Best_Customers
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #2 (Member_4): Report_Best_Customer: The procedure takes as input a dollar amount and will
+produce a report of all customers (names, and total amount spent) who have spent
+more than the input amount in the online store. */
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE Report_Best_Customers(
     p_amount_threshold IN NUMBER
 )
@@ -622,7 +630,11 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error generating best customers report: ' || SQLERRM);
 END Report_Best_Customers;
 
--- Procedure: Payments_to_CC
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #3 (Member_4): Payments_to_CC :- This procedure calculates the fee that the online store must 
+pay to credit card companies for the orders placed on it. 
+The fees per purchase are: (VISA: 3%, MC: 3%, AMEX:5%, Discover: 2%). */
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE Payments_to_CC IS
     -- Declare variables
     v_total_visa_fee NUMBER;
@@ -660,18 +672,21 @@ BEGIN
         END CASE;
     END LOOP;
 
-    -- Display the calculated fees
+    -- Print a list with five lines each showing the total fee to be paid to each credit card type
     DBMS_OUTPUT.PUT_LINE('VISA Fee: $' || TO_CHAR(v_total_visa_fee));
     DBMS_OUTPUT.PUT_LINE('MC Fee: $' || TO_CHAR(v_total_mc_fee));
     DBMS_OUTPUT.PUT_LINE('AMEX Fee: $' || TO_CHAR(v_total_amex_fee));
     DBMS_OUTPUT.PUT_LINE('DISCOVER Fee: $' || TO_CHAR(v_total_discover_fee));
-
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error calculating payments to credit card companies: ' || SQLERRM);
 END;
 
--- Procedure: Thrifty_Customer
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #4 (Member_4): Thrifty_Cutomer :- Procedure that takes as input a number X, and 
+prints the X most stingy customers based on the dollar amount of purchases
+sorted by amount spent in descending order */
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE Thrifty_Customer(p_num_customers IN NUMBER) IS
     v_counter NUMBER := 0; -- Counter to limit the number of customers
 BEGIN
@@ -698,7 +713,6 @@ BEGIN
         -- Break the loop when the required number of customers is reached
         EXIT WHEN v_counter = p_num_customers;
     END LOOP;
-
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error identifying thrifty customers: ' || SQLERRM);
