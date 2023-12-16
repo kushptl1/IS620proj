@@ -397,9 +397,16 @@ CREATE OR REPLACE PROCEDURE Place_Order(
     v_customer_id Customers.Customer_ID%TYPE;
     v_product_id Products.Product_ID%TYPE;
     v_order_id Orders.Order_ID%TYPE;
+    v_f_name VARCHAR2(50);
+    v_l_name VARCHAR2(50);
 BEGIN
+    -- Split email into parts (simplified)
+    -- Note: This is a simple example and may not cover all cases
+    v_f_name := SUBSTR(p_customer_email, 1, INSTR(p_customer_email, '@') - 1);
+    v_l_name := SUBSTR(p_customer_email, INSTR(p_customer_email, '@') + 1);
+
     -- Find customer ID using helper function
-    v_customer_id := FIND_CUSTOMER_ID(p_customer_email);
+    v_customer_id := Fcustomer_id(v_f_name, v_l_name);
 
     -- Find product ID using helper function
     v_product_id := FIND_PRODUCT_ID(p_product_name);
