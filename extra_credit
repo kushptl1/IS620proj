@@ -19,7 +19,7 @@ BEGIN
     Show_all_customers_in_state('WA');
     v_email := 'patti1@gmail.com';
     v_credit_card_number := '1234567890123456';
-    Add_CreditCard(v_credit_card_number, Find_customer_ID('Patti', 'Ordonez'), 'VISA', 2024, 08);
+    Add_CreditCard(v_credit_card_number, Find_customer_ID(v_email), 'VISA', 2024, 08);
     Report_Cards_Expire(SYSDATE + INTERVAL '2' MONTH);
 
     -- Member 2: Product Categories and Products
@@ -42,11 +42,10 @@ BEGIN
     Report_Inventory;
 
     -- Member 4: Invoices
-    v_order_id := 1;
-    v_customer_id := FIND_CUSTOMER_ID('patti1@gmail.com');
+    v_customer_id := FIND_CUSTOMER_ID(v_email);
     v_credit_card_number := '1234567890123456';
     v_amount := 1999.98;
-    Invoice_Customer(v_order_id, v_customer_id, v_credit_card_number, v_amount);
+    Invoice_Customer(Order_id_seq.nextval, v_customer_id, v_credit_card_number, v_amount);
     Report_Best_Customers(1000);
     Payments_to_CC;
 
@@ -57,7 +56,7 @@ BEGIN
     v_product_name := 'Laptop';
     Add_Review(v_reviewer_email, v_stars_given, v_product_name, v_review_text);
     Buy_Or_Beware(5);
-    v_customer_id := FIND_CUSTOMER_ID('patti1@gmail.com');
+    v_customer_id := FIND_CUSTOMER_ID(v_email);
     Recommend_To_Customer(v_customer_id);
     List_Recommendations;
 
