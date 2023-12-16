@@ -15,11 +15,11 @@ DECLARE
 
 BEGIN
     -- Member 1: Customers and CreditCards
-    Add_Customer('Patti Ordonez', 'patti1@gmail.com', 'Seattle', 'WA', '12345');
+    Add_Customer(custom_id_seq.nextval, 'Patti', 'Ordonez', 'patti1@gmail.com', 'Seattle', 'WA', '12345');
     Show_all_customers_in_state('WA');
     v_email := 'patti1@gmail.com';
     v_credit_card_number := '1234567890123456';
-    Add_CreditCard(v_email, v_credit_card_number, 'VISA');
+    Add_CreditCard(v_credit_card_number, Find_customer_ID('Patti', 'Ordonez'), 'VISA', 2024, 08);
     Report_Cards_Expire(SYSDATE + INTERVAL '2' MONTH);
 
     -- Member 2: Product Categories and Products
@@ -39,7 +39,7 @@ BEGIN
     Place_Order(v_email, v_product_name, v_quantity, v_credit_card_number);
     Show_Orders;
     Report_Orders_by_State('WA');
-    Report_Low_Inventory;
+    Report_Inventory;
 
     -- Member 4: Invoices
     v_order_id := 1;
