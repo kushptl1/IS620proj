@@ -245,6 +245,11 @@ CREATE SEQUENCE Category_id_Seq START WITH 1 INCREMENT BY 1;
 -- Create the sequence Product_Seq
 CREATE SEQUENCE Product_id_Seq START WITH 1 INCREMENT BY 1;
 
+
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #1 (Member_2): Add_Category: This procedure takes as input all necessary information
+to insert a new category to the Category table. */
+------------------------------------------------------------------------------------------------------------------
 -- Procedure to add a new product category
 CREATE OR REPLACE PROCEDURE Add_Category(
     p_ProductCategory_Name IN VARCHAR2,
@@ -260,6 +265,11 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #2 (Member_2): Add_Product: This procedure takes as input all necessary information 
+to insert a new product to the Products table. Use a helper function to find the category ID that is
+needed in adding a product. */
+------------------------------------------------------------------------------------------------------------------
 -- Procedure to add a new product
 CREATE OR REPLACE PROCEDURE Add_Product(
     p_Product_Name IN VARCHAR2,
@@ -286,6 +296,13 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #3 (Member_2): Update_Inventory: When an order is placed, the Products table must be 
+updated with the new remaining quantity. Create a procedure that will take as input the productID
+and the units (quantity) of a product in an order, and will update the inventory in the Products 
+table to reflect the new quantity after the order.  */
+------------------------------------------------------------------------------------------------------------------
+-- Procedure to update the inventory
 CREATE OR REPLACE PROCEDURE Update_Inventory(
     p_product_id IN NUMBER,
     p_units IN NUMBER
@@ -312,6 +329,12 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #4 (Member_2): Report_Inventory: This procedure will display a report of 
+available inventory. For each product category print a list with the name of the category and
+the quantity of all available products in that category.  */
+------------------------------------------------------------------------------------------------------------------
+-- Procedure to Report the inventory
 CREATE OR REPLACE PROCEDURE Report_Inventory AS
 BEGIN
     -- Use cursor to fetch inventory information
