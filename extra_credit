@@ -15,9 +15,9 @@ DECLARE
 
 BEGIN
     -- Member 1: Customers and CreditCards
-    Add_Customer('John Doe', 'john@example.com', 'City', 'State', '12345');
-    Show_all_customers_in_state('State');
-    v_email := 'john@example.com';
+    Add_Customer('Patti Ordonez', 'patti1@gmail.com', 'Seattle', 'WA', '12345');
+    Show_all_customers_in_state('WA');
+    v_email := 'patti1@gmail.com';
     v_credit_card_number := '1234567890123456';
     Add_CreditCard(v_email, v_credit_card_number, 'VISA');
     Report_Cards_Expire(SYSDATE + INTERVAL '2' MONTH);
@@ -32,18 +32,18 @@ BEGIN
     Report_Inventory;
 
     -- Member 3: Orders
-    v_email := 'john@example.com';
+    v_email := 'Patti1@gmail.com';
     v_product_name := 'Laptop';
     v_quantity := 2;
     v_credit_card_number := '1234567890123456';
     Place_Order(v_email, v_product_name, v_quantity, v_credit_card_number);
     Show_Orders;
-    Report_Orders_by_State('State');
+    Report_Orders_by_State('WA');
     Report_Low_Inventory;
 
     -- Member 4: Invoices
     v_order_id := 1;
-    v_customer_id := FIND_CUSTOMER_ID('john@example.com');
+    v_customer_id := FIND_CUSTOMER_ID('patti1@gmail.com');
     v_credit_card_number := '1234567890123456';
     v_amount := 1999.98;
     Invoice_Customer(v_order_id, v_customer_id, v_credit_card_number, v_amount);
@@ -57,7 +57,7 @@ BEGIN
     v_product_name := 'Laptop';
     Add_Review(v_reviewer_email, v_stars_given, v_product_name, v_review_text);
     Buy_Or_Beware(5);
-    v_customer_id := FIND_CUSTOMER_ID('john@example.com');
+    v_customer_id := FIND_CUSTOMER_ID('patti1@gmail.com');
     Recommend_To_Customer(v_customer_id);
     List_Recommendations;
 
