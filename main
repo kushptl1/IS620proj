@@ -582,7 +582,9 @@ IS
     v_order_id      Orders.Order_ID%TYPE;
 BEGIN
     -- Use FIND_CUSTOMER_ID, FIND_PRODUCT_ID functions as needed
-    v_customer_id := FIND_CUSTOMER_ID(p_customer_email);
+    -- Assume p_customer_email contains both first and the last name seperated by a space 
+    v_customer_id := FIND_CUSTOMER_ID(SUBSTR(p_customer_email, 1, INSTR(p_customer_email, ' ') - 1),
+                                       SUBSTR(p_customer_email, INSTR(p_customer_email, ' ') + 1));
     v_product_id := FIND_PRODUCT_ID(p_product_name);
 
     -- Find Order ID based on customer, product, and quantity
