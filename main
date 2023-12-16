@@ -178,15 +178,16 @@ END;
 --Implementing procedure to add credit card details for finding further details when details of customer including credit card are needed when a state name is given
 create or replace procedure Add_CreditCard(cardno in int,CustoID in INT,cardty in VARCHAR,expyear in int,expmonth in int)as
 y Credit_Cards%rowtype;
-begin
-y.Card_number := cardno;
-y.Customer_ID := CustoID;
-y.Card_type := cardty;
-y.Expiration_year := expyear;
-y.Expiration_month := expmonth;
-INSERT INTO Credit_Cards VALUES y;
-dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
+BEGIN
+  y.Card_number := cardno;
+  y.Customer_ID := CustoID;
+  y.Card_type := cardty;
+  y.Expiration_year := expyear;
+  y.Expiration_month := expmonth;
+  INSERT INTO Credit_Cards VALUES y;
+    dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
 END;
+
 -- Adding credit card details for customers
 Begin
  Add_CreditCard(12345,Fcustomer_id('Nihanth','Malempet'),'VISA',2024,10);
