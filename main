@@ -355,7 +355,7 @@ EXCEPTION
         RETURN NULL; -- You can choose to handle this differently based on your requirements
 END;
 
-DROP SEQUENCE InvoiceID_SEQ
+DROP SEQUENCE InvoiceID_SEQ;
 
 CREATE SEQUENCE InvoiceID_SEQ START WITH 1 INCREMENT BY 1;
 
