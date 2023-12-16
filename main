@@ -358,6 +358,25 @@ DROP SEQUENCE InvoiceID_SEQ
 
 CREATE SEQUENCE InvoiceID_SEQ START WITH 1 INCREMENT BY 1;
 
+-- Helper Function: FIND_CREDIT_CARD_ID
+CREATE OR REPLACE FUNCTION FIND_CREDIT_CARD_ID(p_credit_card_number VARCHAR2)
+    RETURN INT
+IS
+    v_credit_card_id   Credit_Cards.Card_Number%TYPE; -- Assuming CreditCard_Number is unique
+BEGIN
+    -- Find Credit Card ID based on credit card number
+    SELECT Customer_ID
+    INTO v_credit_card_id
+    FROM Credit_Cards
+    WHERE Card_Number = p_credit_card_number;
+
+    RETURN v_credit_card_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Credit card not found.');
+        RETURN NULL;
+END;
+
 -- Procedure: Invoice_Customer
 CREATE OR REPLACE PROCEDURE Invoice_Customer(
     p_order_id IN Orders.Order_ID%TYPE,
@@ -574,25 +593,6 @@ BEGIN
         AND Quantity = p_quantity;
 
     RETURN v_order_id;
-END;
-
--- Helper Function: FIND_CREDIT_CARD_ID
-CREATE OR REPLACE FUNCTION FIND_CREDIT_CARD_ID(p_credit_card_number VARCHAR2)
-    RETURN INT
-IS
-    v_credit_card_id   Credit_Cards.Card_Number%TYPE; -- Assuming CreditCard_Number is unique
-BEGIN
-    -- Find Credit Card ID based on credit card number
-    SELECT Customer_ID
-    INTO v_credit_card_id
-    FROM Credit_Cards
-    WHERE Card_Number = p_credit_card_number;
-
-    RETURN v_credit_card_id;
-EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('Credit card not found.');
-        RETURN NULL;
 END;
 
 -- Procedure: Report_Best_Customers
