@@ -628,7 +628,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error generating best customers report: ' || SQLERRM);
-END Report_Best_Customers;
+END;
 
 ------------------------------------------------------------------------------------------------------------------
 /* Responsibility #3 (Member_4): Payments_to_CC :- This procedure calculates the fee that the online store must 
@@ -672,7 +672,7 @@ BEGIN
         END CASE;
     END LOOP;
 
-    -- Print a list with five lines each showing the total fee to be paid to each credit card type
+    -- Print a list in lines each showing the total fee to be paid to each credit card type
     DBMS_OUTPUT.PUT_LINE('VISA Fee: $' || TO_CHAR(v_total_visa_fee));
     DBMS_OUTPUT.PUT_LINE('MC Fee: $' || TO_CHAR(v_total_mc_fee));
     DBMS_OUTPUT.PUT_LINE('AMEX Fee: $' || TO_CHAR(v_total_amex_fee));
@@ -707,7 +707,7 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Total Amount Spent: $' || TO_CHAR(customer.total_amount));
         DBMS_OUTPUT.PUT_LINE('------------------');
 
-        -- Increment the counter
+        -- Increment the counter by 1 to traverse the loop
         v_counter := v_counter + 1;
 
         -- Break the loop when the required number of customers is reached
