@@ -45,7 +45,7 @@ CREATE TABLE Products (
 );
 
 CREATE TABLE Orders (
-    Order_ID number ,
+    Order_ID number,
     Customer_ID number,
     Product_ID number,
     Quantity number,
@@ -190,13 +190,13 @@ END;
 
 -- Adding credit card details for customers
 Begin
- Add_CreditCard(12345,Fcustomer_id('Nihanth','Malempet'),'VISA',2024,10);
- Add_CreditCard(12346,Fcustomer_id('Chaitanya','Shetty'),'VISA',2024,10);
- Add_CreditCard(12347,Fcustomer_id('Ashutosh','Latwala'),'VISA',2024,09);
- Add_CreditCard(34567,Fcustomer_id('Nihanth','Malempet'),'AMEX',2024,10);
- Add_CreditCard(23456,Fcustomer_id('Aye','Sha'),'MC',2024,09);
- Add_CreditCard(12348,Fcustomer_id('Aswin','Kumar'),'VISA',2025,10);
- Add_CreditCard(45679,Fcustomer_id('Kush','Patel'),'Discover',2025,10);
+ Add_CreditCard(12345,Find_customer_ID('Nihanth','Malempet'),'VISA',2024,10);
+ Add_CreditCard(12346,Find_customer_ID('Chaitanya','Shetty'),'VISA',2024,10);
+ Add_CreditCard(12347,Find_customer_ID('Ashutosh','Latwala'),'VISA',2024,09);
+ Add_CreditCard(34567,Find_customer_ID('Nihanth','Malempet'),'AMEX',2024,10);
+ Add_CreditCard(23456,Find_customer_ID('Aye','Sha'),'MC',2024,09);
+ Add_CreditCard(12348,Find_customer_ID('Aswin','Kumar'),'VISA',2025,10);
+ Add_CreditCard(45679,Find_customer_ID('Kush','Patel'),'Discover',2025,10);
 end;
 
 -- Execute procedure to show all customers in a specified state
