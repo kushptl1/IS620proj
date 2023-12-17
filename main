@@ -424,7 +424,7 @@ BEGIN
     SELECT Customer_ID
     INTO v_credit_card_id
     FROM Credit_Cards
-    WHERE Card_Number = p_credit_card_number;
+    WHERE Card_Number = TO_NUMBER(p_credit_card_number);
 
     RETURN v_credit_card_id;
 EXCEPTION
