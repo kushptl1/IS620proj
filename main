@@ -200,6 +200,9 @@ end;
 
 -- Execute procedure to show all customers in a specified state
 exec show_all_customers_in_state('SC');
+exec show_all_customers_in_state('MD');
+exec show_all_customers_in_state('NJ');
+
 /
 
 -- Creating a procedure to report credit cards that will expire within the next 2 months from a given date
@@ -233,6 +236,7 @@ END;
 -- Executing the Report_Cards_Expire procedure for a specific date
 BEGIN
   DBMS_OUTPUT.PUT_LINE('CARDS WHICH WILL EXPIRE IN THE NEXT 2 MONTHS');
+  Report_Cards_Expire(DATE '2024-10-30');
   Report_Cards_Expire(DATE '2024-10-30');
 END;
 
