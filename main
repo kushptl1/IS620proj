@@ -620,8 +620,17 @@ END;
 products that are below 50 units in stock. Show Product ID, product name, available
 quantity. In a separate call (outside of the trigger) invoke Update_Inventory procedure
 (created by Member 2) separately to restock a specific product. Inputs: Product name,
-units (quantity) to be added to existing quantity.
-
+units (quantity) to be added to existing quantity.*/
+-- Parameters:
+--  p_Product_ID
+--  p_Product_Name
+--  v_Avail_Quant
+--  p_QuantityToAdd
+-- Helper functions used:
+--  FIND_ORDER_ID
+--  FIND_CUSTOMER_ID
+-- Triggers: Low_Inventory_Trigger
+------------------------------------------------------------------------------------------------------------------
 
 -- Create a stored procedure to get the product name
 CREATE OR REPLACE PROCEDURE Get_Product_Name(
