@@ -61,6 +61,7 @@ CREATE TABLE Invoices (
     Order_ID NUMBER REFERENCES Orders(Order_ID),
     Customer_ID NUMBER REFERENCES Customers(Customer_ID),
     CreditCardNumber VARCHAR2(20),
+    Invoice_date date,
     Amount NUMBER
 );
 
@@ -469,8 +470,8 @@ BEGIN
     END IF;
 
     -- Insert record into Invoice table
-    INSERT INTO Invoices (Invoice_ID, Order_ID, Customer_ID, CreditCardNumber, Amount)
-    VALUES (InvoiceID_Seq.NEXTVAL, p_order_id, p_customer_id, v_credit_card_id, p_amount);
+    INSERT INTO Invoices (Invoice_ID, Order_ID, Customer_ID, CreditCardNumber, Invoice_Date, Amount)
+    VALUES (InvoiceID_Seq.NEXTVAL, p_order_id, p_customer_id, v_credit_card_id, SYSDATE, p_amount);
 
     DBMS_OUTPUT.PUT_LINE('Invoice record added successfully.');
     INSERT INTO Log_Table (Log_ID, Timestamp, Method_Name, Log_Message)
@@ -520,7 +521,7 @@ BEGIN
     Update_Inventory(v_product_id, p_quantity);
 
     -- Invoice the customer using the procedure from Member 4
-    --Invoice_Customer(v_order_id, v_customer_id, p_credit_card_number, p_quantity);
+    --Invoice_Customer(v_order_id, v_customer_id, p_credit_card_number, SYSDATE, p_quantity);
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -555,7 +556,7 @@ BEGIN
       SELECT SUM(O.Quantity * p.UnitPrice) -- Use Quantity from Orders table and UnitPrice from Products table
       INTO v_grand_total
       FROM Orders O
-      JOIN Products p ON O.ProductID = p.ProductID; -- Assuming there's a foreign key relationship between Orders and Products
+      JOIN Products p ON O.Product_ID = p.Product_ID; 
       DBMS_OUTPUT.PUT_LINE('Grand Total Amount of All Orders: ' || v_grand_total);
     END;
 EXCEPTION
@@ -691,7 +692,7 @@ IS
 BEGIN
     -- Display report header
     DBMS_OUTPUT.PUT_LINE('Report of Customers Who Spent More Than $' || TO_CHAR(p_amount_threshold));
-    DBMS_OUTPUT.PUT_LINE('--------------------------------------------')
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
 
     -- Query and display customers who spent more than the specified amount
     FOR cust IN (
