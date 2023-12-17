@@ -9,6 +9,7 @@ DROP TABLE Product_Category CASCADE CONSTRAINTS;
 DROP TABLE Credit_Cards CASCADE CONSTRAINTS;
 DROP TABLE Customers CASCADE CONSTRAINTS;
 
+-- Create Customer Table (Member #1)
 CREATE TABLE Customers (
   Customer_ID INT PRIMARY KEY,
   F_Name VARCHAR(50),
@@ -19,6 +20,7 @@ CREATE TABLE Customers (
   Zip INT
 );
 
+-- Create CreditCards Table (Member #1)
 CREATE TABLE Credit_Cards (
   Card_number INT PRIMARY KEY, 
   Customer_ID INT,
@@ -28,12 +30,14 @@ CREATE TABLE Credit_Cards (
   FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
 );
 
+-- Create ProductCategory Table (Member #2)
 CREATE TABLE Product_Category(
     ProductCategory_ID NUMBER PRIMARY KEY,
     ProductCategory_Name VARCHAR(30),
     ProductCategory_Desc VARCHAR(100)
     );
 
+-- Create Products Table (Member #2)
 CREATE TABLE Products (
     Product_ID NUMBER,
     ProductCategory_ID NUMBER,
@@ -44,6 +48,7 @@ CREATE TABLE Products (
     foreign key (ProductCategory_ID) references Product_Category(ProductCategory_ID)
 );
 
+-- Create Orders Table (Member #3)
 CREATE TABLE Orders (
     Order_ID number,
     Customer_ID number,
@@ -55,6 +60,7 @@ CREATE TABLE Orders (
     foreign key (Product_ID) references Products(Product_ID)
 );
 
+-- Create Invoices Table (Member #4)
 CREATE TABLE Invoices (
     Invoice_ID NUMBER PRIMARY KEY,
     Order_ID NUMBER REFERENCES Orders(Order_ID),
@@ -63,6 +69,7 @@ CREATE TABLE Invoices (
     Amount NUMBER
 );
 
+-- Create Reviews Table (Member #5)
 CREATE TABLE Reviews (
     Review_ID NUMBER PRIMARY KEY,
     Product_ID NUMBER REFERENCES Products(Product_ID),
@@ -71,6 +78,7 @@ CREATE TABLE Reviews (
     ReviewText CLOB
 );
 
+-- Create Recommendation Table (Member #5)
 CREATE TABLE Recommendation (
     Recommendation_ID NUMBER PRIMARY KEY,
     Customer_ID NUMBER REFERENCES Customers(Customer_ID),
