@@ -32,7 +32,7 @@ BEGIN
     Report_Inventory;
 
     -- Member 3: Orders
-    v_email := 'Patti1@gmail.com';
+    v_email := 'patti1@gmail.com';
     v_product_name := 'Laptop';
     v_quantity := 2;
     v_credit_card_number := '1234567890123456';
@@ -45,7 +45,12 @@ BEGIN
     v_customer_id := FIND_CUSTOMER_ID(v_email);
     v_credit_card_number := '1234567890123456';
     v_amount := 1999.98;
-    Invoice_Customer(Order_id_seq.nextval, Find_customer_ID(v_email), v_credit_card_number, v_amount);
+    -- Ensure customer and credit card exist before creating an invoice
+    IF v_customer_id IS NOT NULL AND Find_Credit_Card_ID(v_credit_card_number) IS NOT NULL THEN
+        Invoice_Customer(Order_id_seq.nextval, v_customer_id, v_credit_card_number, v_amount);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Error: Customer or Credit Card not found.');
+    END IF;
     Report_Best_Customers(1000);
     Payments_to_CC;
 
@@ -61,6 +66,7 @@ BEGIN
     List_Recommendations;
 
     DBMS_OUTPUT.PUT_LINE('Project Execution Completed Successfully.');
+
 EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
