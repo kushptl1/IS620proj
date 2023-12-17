@@ -157,11 +157,10 @@ Begin
 end;
 
 -- Execute procedure to show all customers in a specified state
-exec show_all_customers_in_state('SC');
+exec show_all_customers_in_state('CA');
 exec show_all_customers_in_state('MD');
-exec show_all_customers_in_state('NJ');
+exec show_all_customers_in_state('NY');
 
-/
 
 -- Creating a procedure to report credit cards that will expire within the next 2 months from a given date
 CREATE OR REPLACE PROCEDURE Report_Cards_Expire(dat IN DATE) AS
