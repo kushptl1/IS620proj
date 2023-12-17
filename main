@@ -40,7 +40,7 @@ CREATE TABLE Customers (
 );
 
 CREATE TABLE Credit_Cards (
-  Card_number INT PRIMARY KEY, 
+  Card_number VARCHAR PRIMARY KEY, 
   Customer_ID INT,
   Card_type VARCHAR(10),
   Expiration_year INT,
@@ -217,7 +217,7 @@ BEGIN
 END;
 
 -- Adding credit card details for customers
-Begin
+BEGIN
  Add_CreditCard(12345,Find_customer_ID('nihanth@malempet.com'),'VISA',2024,10);
  Add_CreditCard(12346,Find_customer_ID('chaitanya@shetty.com'),'VISA',2024,10);
  Add_CreditCard(12347,Find_customer_ID('ashutosh@Latwala.com'),'VISA',2024,09);
@@ -225,7 +225,7 @@ Begin
  Add_CreditCard(23456,Find_customer_ID('aye@sha.com'),'MC',2024,09);
  Add_CreditCard(12348,Find_customer_ID('aswin@kumar.com'),'VISA',2025,10);
  Add_CreditCard(45679,Find_customer_ID('kush@patel.com'),'Discover',2025,10);
-end;
+END;
 
 -- Execute procedure to show all customers in a specified state
 exec show_all_customers_in_state('SC');
