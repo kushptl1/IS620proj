@@ -44,7 +44,7 @@ CREATE TABLE Customers (
 
 -- Create Credit_Cards table to store credit card information associated with customers
 CREATE TABLE Credit_Cards (
-  Card_number VARCHAR PRIMARY KEY, -- Unique credit card number
+  Card_number INT PRIMARY KEY, -- Unique credit card number
   Customer_ID INT, -- Foreign key referencing Customers table
   Card_type VARCHAR(10), -- Type of the credit card
   Expiration_year INT, -- Expiration year of the credit card
