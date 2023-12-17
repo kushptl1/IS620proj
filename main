@@ -122,7 +122,18 @@ DROP SEQUENCE custom_id_seq;
 -- Create a sequence for generating Customer_ID values
 CREATE SEQUENCE custom_id_seq START WITH 1;
 
--- Procedure to add a customer to the Customers table
+/* Responsibility #1 (Member_1): 
+    Procedure: Add_Customer : Inserts a new customer into the Customers table with the provided information.
+--- Parameters:
+--- cust: Customer ID
+--- fnam: First name
+--- lnam: Last name
+--- mail: Email address
+--- cit: City
+--- stat: State
+--- zipp: Zip code
+*/
+
 CREATE OR REPLACE PROCEDURE Add_Customer(
   cust IN INT,
   fnam IN VARCHAR,
@@ -149,8 +160,13 @@ BEGIN
   -- Display a message indicating the customer has been added
   DBMS_OUTPUT.PUT_LINE('ADDING CUSTOMER ' || x.F_Name || ' ' || x.L_Name);
 END;
-
--- Function to retrieve the Customer_ID based on first and last names
+---------------------------------------------------------------------------------------------------------------------------------------
+/* Responsibility #2 (Member_1): 
+  Function: Find_Customer_ID : Searches for a customer's ID based on their email address. 
+--- Parameters:
+--- p_email: Email address of the customer.
+*/
+---------------------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION Find_Customer_ID(
   p_email IN Customers.Email%TYPE
 ) RETURN NUMBER IS
@@ -172,8 +188,13 @@ EXCEPTION
     DBMS_OUTPUT.PUT_LINE('More than one customer with the email; returning the first one');
     RETURN cid;
 END;
-
--- Procedure to show all customers in a given state along with their credit card details
+----------------------------------------------------------------------------------------------------------------------------------------------
+/* Responsibility #3 (Member_1): 
+   Procedure: Show_all_customers_in_state : Retrieves and displays customer details along with credit card information for a specified state.
+--- Parameters:
+--- sta: State for which customers are to be displayed.
+ */
+-------------------------------------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE Show_all_customers_in_state(
   sta IN VARCHAR
 ) AS
@@ -234,7 +255,11 @@ exec show_all_customers_in_state('MD');
 
 /
 
--- Creating a procedure to report credit cards that will expire within the next 2 months from a given date
+/* Responsibility #4 (Member_1): 
+   Procedure: Report_Cards_Expire : Generates a report of credit cards expiring within the next 2 months based on a given date.
+--- Parameters:
+--- dat: Date for checking expiring credit cards.
+*/
 CREATE OR REPLACE PROCEDURE Report_Cards_Expire(dat IN DATE) AS
 BEGIN
   -- Cursor to retrieve customer and credit card details for expiring cards
