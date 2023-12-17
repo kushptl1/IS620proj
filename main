@@ -17,8 +17,10 @@
     Member 5 - Kush Patel, responsible for creating the procedures of member 5. 
     Member 6 - Ashutosh Latwala, responsible for creating the procedures of member 6. */
 --------------------------------------------------------------------------------------------------------------------------------
+-- Enable server output for debugging purposes
 Set Serveroutput on;
 
+-- Drop existing tables with CASCADE CONSTRAINTS to remove dependencies
 DROP TABLE Log_Table CASCADE CONSTRAINTS;
 DROP TABLE Recommendation CASCADE CONSTRAINTS;
 DROP TABLE Reviews CASCADE CONSTRAINTS;
@@ -29,92 +31,120 @@ DROP TABLE Product_Category CASCADE CONSTRAINTS;
 DROP TABLE Credit_Cards CASCADE CONSTRAINTS;
 DROP TABLE Customers CASCADE CONSTRAINTS;
 
+-- Create Customers table to store customer information
 CREATE TABLE Customers (
-  Customer_ID INT PRIMARY KEY,
-  F_Name VARCHAR(50),
-  L_Name VARCHAR(50),
-  email VARCHAR(100),
-  City VARCHAR(50),
-  State VARCHAR(50),
-  Zip INT
+  Customer_ID INT PRIMARY KEY, -- Unique identifier for each customer
+  F_Name VARCHAR(50), -- First name of the customer
+  L_Name VARCHAR(50), -- Last name of the customer
+  email VARCHAR(100), -- Email address of the customer
+  City VARCHAR(50), -- City where the customer resides
+  State VARCHAR(50), -- State where the customer resides
+  Zip INT -- Zip code of the customer's address
 );
 
+-- Create Credit_Cards table to store credit card information associated with customers
 CREATE TABLE Credit_Cards (
-  Card_number VARCHAR PRIMARY KEY, 
-  Customer_ID INT,
-  Card_type VARCHAR(10),
-  Expiration_year INT,
-  Expiration_month INT,
-  FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID)
+  Card_number VARCHAR PRIMARY KEY, -- Unique credit card number
+  Customer_ID INT, -- Foreign key referencing Customers table
+  Card_type VARCHAR(10), -- Type of the credit card
+  Expiration_year INT, -- Expiration year of the credit card
+  Expiration_month INT, -- Expiration month of the credit card
+  FOREIGN KEY (Customer_ID) REFERENCES Customers(Customer_ID) -- Reference to the Customers table
 );
 
+-- Create Product_Category table to store product categories
 CREATE TABLE Product_Category(
-    ProductCategory_ID NUMBER PRIMARY KEY,
-    ProductCategory_Name VARCHAR(30),
-    ProductCategory_Desc VARCHAR(100)
-    );
+    ProductCategory_ID NUMBER PRIMARY KEY, -- Unique identifier for each product category
+    ProductCategory_Name VARCHAR(30), -- Name of the product category
+    ProductCategory_Desc VARCHAR(100) -- Description of the product category
+);
 
+-- Create Products table to store information about available products
 CREATE TABLE Products (
-    Product_ID NUMBER,
-    ProductCategory_ID NUMBER,
-    Product_Name VARCHAR(30),
-    Avail_Quant NUMBER,
-    Unitprice NUMBER,
-    primary key (Product_id),
-    foreign key (ProductCategory_ID) references Product_Category(ProductCategory_ID)
+    Product_ID NUMBER, -- Unique identifier for each product
+    ProductCategory_ID NUMBER, -- Foreign key referencing Product_Category table
+    Product_Name VARCHAR(30), -- Name of the product
+    Avail_Quant NUMBER, -- Available quantity of the product
+    Unitprice NUMBER, -- Unit price of the product
+    primary key (Product_id), -- Primary key constraint
+    foreign key (ProductCategory_ID) references Product_Category(ProductCategory_ID) -- Reference to the Product_Category table
 );
 
+-- Create Orders table to store customer orders
 CREATE TABLE Orders (
-    Order_ID number,
-    Customer_ID number,
-    Product_ID number,
-    Quantity number,
-    Order_Date date,
-    primary key (Order_ID),
-    foreign key (Customer_ID) references Customers(Customer_ID),
-    foreign key (Product_ID) references Products(Product_ID)
+    Order_ID number, -- Unique identifier for each order
+    Customer_ID number, -- Foreign key referencing Customers table
+    Product_ID number, -- Foreign key referencing Products table
+    Quantity number, -- Quantity of the ordered product
+    Order_Date date, -- Date when the order was placed
+    primary key (Order_ID), -- Primary key constraint
+    foreign key (Customer_ID) references Customers(Customer_ID), -- Reference to the Customers table
+    foreign key (Product_ID) references Products(Product_ID) -- Reference to the Products table
 );
 
+-- Create Invoices table to store invoice information related to customer orders
 CREATE TABLE Invoices (
-    Invoice_ID NUMBER PRIMARY KEY,
-    Order_ID NUMBER REFERENCES Orders(Order_ID),
-    Customer_ID NUMBER REFERENCES Customers(Customer_ID),
-    CreditCardNumber VARCHAR2(20),
-    Invoice_date date,
-    Amount NUMBER
+    Invoice_ID NUMBER PRIMARY KEY, -- Unique identifier for each invoice
+    Order_ID NUMBER REFERENCES Orders(Order_ID), -- Foreign key referencing Orders table
+    Customer_ID NUMBER REFERENCES Customers(Customer_ID), -- Foreign key referencing Customers table
+    CreditCardNumber VARCHAR2(20), -- Credit card number associated with the invoice
+    Invoice_date date, -- Date when the invoice was generated
+    Amount NUMBER -- Total amount of the invoice
 );
 
+-- Create Reviews table to store product reviews submitted by customers
 CREATE TABLE Reviews (
-    Review_ID NUMBER PRIMARY KEY,
-    Product_ID NUMBER REFERENCES Products(Product_ID),
-    ReviewerEmail VARCHAR2(255),
-    StarsGiven NUMBER(1, 0),
-    ReviewText CLOB
+    Review_ID NUMBER PRIMARY KEY, -- Unique identifier for each review
+    Product_ID NUMBER REFERENCES Products(Product_ID), -- Foreign key referencing Products table
+    ReviewerEmail VARCHAR2(255), -- Email of the reviewer
+    StarsGiven NUMBER(1, 0), -- Rating given by the reviewer
+    ReviewText CLOB -- Textual content of the review
 );
 
+-- Create Recommendation table to store product recommendations for customers
 CREATE TABLE Recommendation (
-    Recommendation_ID NUMBER PRIMARY KEY,
-    Customer_ID NUMBER REFERENCES Customers(Customer_ID),
-    RecommendedProduct_ID NUMBER REFERENCES Products(Product_ID),
-    RecommendationDate DATE
+    Recommendation_ID NUMBER PRIMARY KEY, -- Unique identifier for each recommendation
+    Customer_ID NUMBER REFERENCES Customers(Customer_ID), -- Foreign key referencing Customers table
+    RecommendedProduct_ID NUMBER REFERENCES Products(Product_ID), -- Foreign key referencing Products table
+    RecommendationDate DATE -- Date when the recommendation was made
 );
 
+-- Create Log_Table to log system activities and events
 CREATE TABLE Log_Table (
-    Log_ID NUMBER PRIMARY KEY,
-    Timestamp TIMESTAMP,
-    Method_Name VARCHAR2(50),
-    Log_Message VARCHAR2(200)
+    Log_ID NUMBER PRIMARY KEY, -- Unique identifier for each log entry
+    Timestamp TIMESTAMP, -- Timestamp of the log entry
+    Method_Name VARCHAR2(50), -- Name of the method or process
+    Log_Message VARCHAR2(200) -- Descriptive message for the log entry
 );
 
+-- Display the structure of the Customers table
 desc Customers;
+
+-- Display the structure of the Credit_Cards table
 desc Credit_Cards;
+
+-- Display the structure of the Product_Category table
 desc Product_Category;
+
+-- Display the structure of the Products table
 desc Products;
+
+-- Display the structure of the Orders table
 desc Orders;
+
+-- Display the structure of the Invoices table
 desc Invoices;
+
+-- Display the structure of the Reviews table
 desc Reviews;
+
+-- Display the structure of the Recommendation table
 desc Recommendation;
+
+-- Display the structure of the Log_Table
 desc Log_Table;
+
+
 
 -- Drop existing sequence if it exists
 DROP SEQUENCE custom_id_seq;
