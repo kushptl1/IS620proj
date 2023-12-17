@@ -1,3 +1,22 @@
+--------------------------------------------------------------------------------------------------------------------------------
+/* IS 620 - Advanced Database Projects - Online Shopping DB System - Team Suicide Squad
+  
+  POGIL Roles:
+    Ashutosh Latwala - Quality Control
+    Aswin Kumar Janakiraman - Process Analyst
+    Chaitanya Shetty - Process Analyst
+    FNU Ayesha - Spokesperson
+    Kush Patel - Facilitator
+    Nihant Malempet - Quality Control 
+
+  Programming Roles in the project
+    Member 1 - Nihant Malempet, responsible for creating the procedures of member 1. 
+    Member 2 - Chaitanya Shetty, responsible for creating the procedures of member 2. 
+    Member 3 - FNU Ayesha, responsible for creating the procedures of member 3. 
+    Member 4 - Aswin Kumar Janakiraman, responsible for creating the procedures of member 4. 
+    Member 5 - Kush Patel, responsible for creating the procedures of member 5. 
+    Member 6 - Ashutosh Latwala, responsible for creating the procedures of member 6. */
+--------------------------------------------------------------------------------------------------------------------------------
 Set Serveroutput on;
 
 DROP TABLE Log_Table CASCADE CONSTRAINTS;
