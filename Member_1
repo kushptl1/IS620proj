@@ -91,7 +91,7 @@ BEGIN
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
     -- Handle case where no matching customer is found
-    DBMS_OUTPUT.PUT_LINE('No such customers');
+    DBMS_OUTPUT.PUT_LINE('No such customer');
     RETURN -1;
   WHEN TOO_MANY_ROWS THEN
     -- Handle case where more than one customer is found (return the first one)
@@ -117,7 +117,11 @@ EXCEPTION
   WHEN NO_DATA_FOUND THEN
     -- Handle case where no customers are found in the specified state
     DBMS_OUTPUT.PUT_LINE('No customers found in ' || sta);
+  WHEN OTHERS THEN
+    -- Handle other exceptions
+    DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
 END;
+
 
 -- Adding customers using the Add_Customer procedure
 BEGIN
@@ -191,5 +195,9 @@ END;
 BEGIN
   DBMS_OUTPUT.PUT_LINE('CARDS WHICH WILL EXPIRE IN THE NEXT 2 MONTHS');
   Report_Cards_Expire(DATE '2024-10-30');
-   Report_Cards_Expire(DATE '2026-10-30');
+  Report_Cards_Expire(DATE '2026-10-30');
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Handle other exceptions
+    DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
 END;
