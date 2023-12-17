@@ -480,7 +480,6 @@ addition the Invoice_Customer procedure (created by Member 4) must be called.*/
 --  Find_customer_id
 --  FIND_PRODUCT_ID
 ------------------------------------------------------------------------------------------------------------------
-
 -- Drop the sequence Order_Seq
 DROP SEQUENCE Order_id_Seq;
 
@@ -538,7 +537,6 @@ total of the number of all orders placed in the system*/
 --  order_rec
 --  v_grand_total
 ------------------------------------------------------------------------------------------------------------------  
-
 -- Procedure to show all orders in the online marketplace
 CREATE OR REPLACE PROCEDURE SHOW_ORDERS IS
 BEGIN
@@ -573,6 +571,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+
 ------------------------------------------------------------------------------------------------------------------
 /* Responsibility #3 (Member_3): . Report_Orders_by_State: Create a procedure that takes a state as input. Report all
 orders placed in the online market from that state by customer and print for each
@@ -580,7 +579,6 @@ customer: the name, email, total number of orders placed and total amount of dol
 spent. At the end, print the grand total amount of dollars spent.*/
 -- Parameters: order_rec
 ------------------------------------------------------------------------------------------------------------------
-
 -- Procedure to report orders by state
 CREATE OR REPLACE PROCEDURE REPORT_ORDERS_BY_STATE (p_state IN VARCHAR2) IS
 BEGIN
@@ -639,7 +637,6 @@ units (quantity) to be added to existing quantity.*/
 --  FIND_CUSTOMER_ID
 -- Triggers: Low_Inventory_Trigger
 ------------------------------------------------------------------------------------------------------------------
-
 -- Create a stored procedure to get the product name
 CREATE OR REPLACE PROCEDURE Get_Product_Name(
     p_Product_ID IN NUMBER,
