@@ -248,6 +248,7 @@ EXCEPTION
     -- Handle case where no customers are found in the specified state
     DBMS_OUTPUT.PUT_LINE('No customers found in ' || sta);
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Adding customers using the Add_Customer procedure
 BEGIN
@@ -258,6 +259,7 @@ BEGIN
   Add_Customer(custom_id_seq.NEXTVAL, 'Kush', 'Patel', 'kush@patel.com', 'New York', 'NY', '12345');
   Add_Customer(custom_id_seq.NEXTVAL, 'Ashutosh', 'Latwala', 'ashutosh@Latwala.com', 'New York', 'NY', '12345');
 END;
+------------------------------------------------------------------------------------------------------------------
 
 --Implementing procedure to add credit card details for finding further details when details of customer including credit card are needed when a state name is given
 create or replace procedure Add_CreditCard(cardno in int,CustoID in INT,cardty in VARCHAR,expyear in int,expmonth in int)as
@@ -271,6 +273,7 @@ BEGIN
   INSERT INTO Credit_Cards VALUES y;
     dbms_output.put_line('ADDING CREDIT CARD WITH CARD NUMBER '||y.card_number);
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Adding credit card details for customers
 BEGIN
@@ -323,6 +326,7 @@ EXCEPTION
     -- Handling case where no data is found
     DBMS_OUTPUT.PUT_LINE('No expiring credit cards found.');
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Executing the Report_Cards_Expire procedure for a specific date
 BEGIN
@@ -468,7 +472,7 @@ EXCEPTION
         -- Handle any other exceptions and print error message
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
-
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION FIND_PRODUCT_ID(
     p_product_name IN VARCHAR2
 ) RETURN NUMBER IS
@@ -490,10 +494,12 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
         RETURN NULL; -- You can choose to handle this differently based on your requirements
 END;
+------------------------------------------------------------------------------------------------------------------
 
 DROP SEQUENCE InvoiceID_SEQ;
 
 CREATE SEQUENCE InvoiceID_SEQ START WITH 1 INCREMENT BY 1;
+------------------------------------------------------------------------------------------------------------------
 
 -- Helper Function: FIND_CREDIT_CARD_ID
 CREATE OR REPLACE FUNCTION FIND_CREDIT_CARD_ID(p_credit_card_number VARCHAR2)
@@ -562,13 +568,14 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error adding invoice record: ' || SQLERRM);
 END;
-
+------------------------------------------------------------------------------------------------------------------
 
 -- Drop the sequence Order_Seq
 DROP SEQUENCE Order_id_Seq;
 
 -- Create the sequence Order_Seq which automatically creates the order ID for new orders that are being placed by the customers.
 CREATE SEQUENCE Order_id_Seq START WITH 1 INCREMENT BY 1;
+------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE Place_Order(
     p_customer_email IN VARCHAR2,
@@ -611,6 +618,7 @@ EXCEPTION
         -- Handle exceptions
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE SHOW_ORDERS IS
 BEGIN
@@ -644,6 +652,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE REPORT_ORDERS_BY_STATE (p_state IN VARCHAR2) IS
 BEGIN
@@ -684,6 +693,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Create a stored procedure to get the product name
 CREATE OR REPLACE PROCEDURE Get_Product_Name(
@@ -695,6 +705,7 @@ BEGIN
     FROM Products
     WHERE Product_ID = p_Product_ID;
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Create the trigger
 CREATE OR REPLACE TRIGGER Low_Inventory_Trigger
@@ -717,6 +728,7 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Low Inventory Alert: Product ' || :new.Product_ID || ' (' || v_Product_Name || ') is below 50 units.');
     END IF;
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Procedure to restock a specific product
 CREATE OR REPLACE PROCEDURE Restock_Product(
@@ -734,6 +746,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+------------------------------------------------------------------------------------------------------------------
 
 -- Helper Function: FIND_ORDER_ID
 CREATE OR REPLACE FUNCTION FIND_ORDER_ID(p_customer_email VARCHAR2, p_product_name VARCHAR2, p_quantity NUMBER)
