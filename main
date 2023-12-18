@@ -1073,6 +1073,14 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #1 (Member_6): Income_By_state: This procedure prints all income to the 
+online store by state. Each line lists the state and then calculates and prints the total 
+amount of purchases (in dollars) by customers in that state. This procedure will basically
+takes the state name and total amount of selling from the invoices as input and then after
+performing operation it will provide report on total income (in dollars) state wise as output. */
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE Income_By_State AS
 BEGIN
     -- Loop through each state and calculate total income
@@ -1098,6 +1106,15 @@ BEGIN
             DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #2 (Member_6): Best_Selling_Products: This report lists the top X (where 
+X is an input parameter) best selling products based on total number of units sold. Here, 
+total number of units is input. Each line lists the product name, category, total number of 
+units sold, and total amount collected (in dollars) in descending number or units sold as 
+output. */
+-- Parameters:
+--   p_X: How many top product will be included in the report
+------------------------------------------------------------------------------------------------------------------
 -- Procedure to list the top X best selling products
 CREATE OR REPLACE PROCEDURE Best_Selling_Products(
     p_X IN NUMBER
@@ -1138,6 +1155,14 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #3 (Member_6): Recommendations_Follow_Up: The store managers want to find 
+out if the recommendations actually work. They want to identify the customers who actually
+bought the personally recommended products after they were notified of the recommendation. 
+Hence, this procedure will create a report with customer names, recommended product name, and 
+if they bought it after it was recommended or not as output. This procedure takes customers
+order details, their recommendations details and again order details as an input. */
+------------------------------------------------------------------------------------------------------------------
 -- Procedure to identify customers who followed recommended products
 CREATE OR REPLACE PROCEDURE Recommendations_Follow_Up AS
 BEGIN
@@ -1173,6 +1198,15 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #4 (Member_6): Products_Ordered_By_Time_Interval: This procedure takes as 
+input a start and an end date. Within this time interval identify all products that were 
+ordered. For each product, it prints its name, the total number of units that were ordered, 
+and the total number of customers who ordered it. */
+-- Parameters:
+--   p_StartDate: Staring date of the interval
+--   p_EndDate: Ending date of the interval
+------------------------------------------------------------------------------------------------------------------
 -- Procedure to identify products ordered within a time interval
 CREATE OR REPLACE PROCEDURE Prod_Order_By_Time_Intvl(
     p_StartDate IN DATE,
