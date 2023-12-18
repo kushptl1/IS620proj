@@ -71,6 +71,7 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+---------------------------------------------------------------------------------
 
 -- Member 6: Manager Reports
 -- Anonymous PL/SQL block to call the Income_By_State procedure
@@ -87,6 +88,7 @@ EXCEPTION
         -- Log the error to an error log table or take appropriate action
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+---------------------------------------------------------------------------------
 
 -- Anonymous PL/SQL block to call the Best_Selling_Products procedure
 DECLARE
@@ -107,6 +109,7 @@ EXCEPTION
         -- Log the error to an error log table or take appropriate action
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+---------------------------------------------------------------------------------
 
 -- Anonymous PL/SQL block to run the Recommendations_Follow_Up procedure
 DECLARE
@@ -132,6 +135,7 @@ EXCEPTION
     -- Rollback the transaction to maintain data consistency
     ROLLBACK;
 END;
+---------------------------------------------------------------------------------
 
 -- Anonymous PL/SQL block to run the Prod_Order_By_Time_Intvl procedure with sample data
 DECLARE
