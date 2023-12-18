@@ -1021,6 +1021,15 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error in Buy_Or_Beware: ' || SQLERRM);
 END;
 
+
+
+/*This procedure calculates a recommendation for a
+customer. The input is the customer ID. This procedure will insert a new
+recommendation in the Recommendations table for a specific input customer as
+follows: it will identify the best-rated product (based on reviews) in the same category
+that the customer has bought a product before but has not bought that particular
+recommended product yet.*/
+
 --Drop the sequence
 DROP SEQUENCE Recommendation_ID_SEQ;
 
