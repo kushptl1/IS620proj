@@ -568,6 +568,22 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error adding invoice record: ' || SQLERRM);
 END;
+
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #1 (Member_3): Place_Order: A customer orders a product at a given quantity, in a given date. Input
+parameters are the email of the customer, the product name, the quantity, and the
+credit card number to charge. User helper functions to find the customer ID, product
+ID. Every time the Place_Order procedure is called, the Update_Inventory procedure
+(created by Member 2) must be called from within the Place_Order procedure. In
+addition the Invoice_Customer procedure (created by Member 4) must be called.*/
+-- Parameters:
+--  p_customer_email
+--  p_product_name
+--  p_quantity
+--  p_credit_card_number
+-- Hepler functions used:
+--  Find_customer_id
+--  FIND_PRODUCT_ID
 ------------------------------------------------------------------------------------------------------------------
 
 -- Drop the sequence Order_Seq
@@ -576,7 +592,7 @@ DROP SEQUENCE Order_id_Seq;
 -- Create the sequence Order_Seq which automatically creates the order ID for new orders that are being placed by the customers.
 CREATE SEQUENCE Order_id_Seq START WITH 1 INCREMENT BY 1;
 ------------------------------------------------------------------------------------------------------------------
-
+-- Procedure to place an order
 CREATE OR REPLACE PROCEDURE Place_Order(
     p_customer_email IN VARCHAR2,
     p_product_name IN VARCHAR2,
@@ -618,7 +634,15 @@ EXCEPTION
         -- Handle exceptions
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+
 ------------------------------------------------------------------------------------------------------------------
+/* Responsibility #2 (Member_3): Show_Orders: Show all orders in the online market place: Customer name, product,
+quantity ordered, amount charged. At the end add an additional line showing the grand
+total of the number of all orders placed in the system*/
+-- Parameters:
+--  order_rec
+--  v_grand_total
+------------------------------------------------------------------------------------------------------------------  
 
 CREATE OR REPLACE PROCEDURE SHOW_ORDERS IS
 BEGIN
@@ -652,8 +676,14 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
-------------------------------------------------------------------------------------------------------------------
 
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #3 (Member_3): . Report_Orders_by_State: Create a procedure that takes a state as input. Report all
+orders placed in the online market from that state by customer and print for each
+customer: the name, email, total number of orders placed and total amount of dollars
+spent. At the end, print the grand total amount of dollars spent.*/
+-- Parameters: order_rec
+------------------------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PROCEDURE REPORT_ORDERS_BY_STATE (p_state IN VARCHAR2) IS
 BEGIN
     FOR order_rec IN (SELECT
@@ -693,6 +723,21 @@ EXCEPTION
     WHEN OTHERS THEN
         DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
 END;
+
+------------------------------------------------------------------------------------------------------------------
+/* Responsibility #4 (Member_3): 2. Report_Low_Inventory: Create a trigger which automatically shows on the screen, all
+products that are below 50 units in stock. Show Product ID, product name, available
+quantity. In a separate call (outside of the trigger) invoke Update_Inventory procedure
+(created by Member 2) separately to restock a specific product. Inputs: Product name, units (quantity) to be added to existing quantity.*/
+-- Parameters:
+--  p_Product_ID
+--  p_Product_Name
+--  v_Avail_Quant
+--  p_QuantityToAdd
+-- Helper functions used:
+--  FIND_ORDER_ID
+--  FIND_CUSTOMER_ID
+-- Triggers: Low_Inventory_Trigger
 ------------------------------------------------------------------------------------------------------------------
 
 -- Create a stored procedure to get the product name
@@ -707,7 +752,7 @@ BEGIN
 END;
 ------------------------------------------------------------------------------------------------------------------
 
--- Create the trigger
+-- Create the trigger for low invetory 
 CREATE OR REPLACE TRIGGER Low_Inventory_Trigger
 BEFORE INSERT ON Orders
 FOR EACH ROW
