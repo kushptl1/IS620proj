@@ -154,6 +154,7 @@ DROP SEQUENCE custom_id_seq;
 -- Create a sequence for generating Customer_ID values
 CREATE SEQUENCE custom_id_seq START WITH 1;
 
+--------------------------------------------------------------------------------------------------------------------------------
 /* Responsibility #1 (Member_1): 
     Procedure: Add_Customer : Inserts a new customer into the Customers table with the provided information.
 --- Parameters:
@@ -165,6 +166,7 @@ CREATE SEQUENCE custom_id_seq START WITH 1;
 --- stat: State
 --- zipp: Zip code
 */
+--------------------------------------------------------------------------------------------------------------------------------
 
 CREATE OR REPLACE PROCEDURE Add_Customer(
   cust IN INT,
@@ -286,12 +288,14 @@ exec show_all_customers_in_state('MD');
 
 
 /
-
+--------------------------------------------------------------------------------------------------------------------------------
 /* Responsibility #4 (Member_1): 
    Procedure: Report_Cards_Expire : Generates a report of credit cards expiring within the next 2 months based on a given date.
 --- Parameters:
 --- dat: Date for checking expiring credit cards.
 */
+--------------------------------------------------------------------------------------------------------------------------------
+
 CREATE OR REPLACE PROCEDURE Report_Cards_Expire(dat IN DATE) AS
 BEGIN
   -- Cursor to retrieve customer and credit card details for expiring cards
