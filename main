@@ -929,6 +929,12 @@ DROP SEQUENCE ReviewID_SEQ;
 -- Create the sequence for Review_ID
 CREATE SEQUENCE ReviewID_SEQ START WITH 1 INCREMENT BY 1;
 
+
+/*This procedure receives a review from a person (anyone with an email)
+for a particular product and adds the review in the Reviews table. Input to this
+procedure is the reviewer's email, stars given (a number from 1-5), product ID, and
+review text.*/
+
 -- Procedure: Add_Review
 CREATE OR REPLACE PROCEDURE Add_Review(
     p_reviewer_email IN VARCHAR2,
@@ -953,6 +959,15 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('Error adding review: ' || SQLERRM);
 END;
 
+
+
+/*This procedure takes as input a number X and prints the best X
+products and the worst X products based on the average star ratings of customers
+who wrote a review for each product. It should first print: ‘Top rated products’ and then for
+each line show the average number of stars (in descending order), product ID, product
+name, and the standard deviation. Then print ‘Buyer Beware: Stay Away from...” then
+each consecutive line shows the average number of stars (in ascending order),
+product ID, product name, and the standard deviation.*/
 -- Procedure: Buy_Or_Beware
 CREATE OR REPLACE PROCEDURE Buy_Or_Beware(p_top_x IN NUMBER) IS
     CURSOR best_products_cur IS
